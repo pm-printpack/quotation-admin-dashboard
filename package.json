@@ -9,17 +9,22 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "next": "15.3.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "next": "15.3.2"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@eslint/eslintrc": "^3",
+    "@release-it/conventional-changelog": "^10.0.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "commitlint": "^19.8.1",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
-    "@eslint/eslintrc": "^3"
+    "lefthook": "^1.11.13",
+    "release-it": "^19.0.2",
+    "typescript": "^5"
   }
 }
