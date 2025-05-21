@@ -1,5 +1,8 @@
+"use client";
+import "@ant-design/v5-patch-for-react-19";
 import Image from "next/image";
 import styles from "./page.module.css";
+import { Button } from "antd";
 
 export default function Home() {
   return (
@@ -19,6 +22,8 @@ export default function Home() {
           </li>
           <li>Save and see your changes instantly.</li>
         </ol>
+
+        <Button type="primary">Button</Button>
 
         <div className={styles.ctas}>
           <a
