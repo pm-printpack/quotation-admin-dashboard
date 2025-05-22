@@ -1,14 +1,34 @@
-import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { useRequest } from "@/hooks/useRequest";
+import { ActionReducerMapBuilder, PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+
+const { post } = useRequest();
 
 interface AuthState {
+  isAuthenticated: boolean;
+  accessToken: string;
 }
 
 const initialState: AuthState = {
+  isAuthenticated: false,
+  accessToken: ""
 };
 
-export const login = createAsyncThunk<void, any>(
+type LoginFormData = {
+  username: string;
+  password: string;
+}
+
+export const login = createAsyncThunk<void, LoginFormData>(
   "auth/login",
-  async (params: any, thunkApi): Promise<void> => {
+  async (formData: LoginFormData): Promise<void> => {
+    const {data, error} = await post<LoginFormData, { accessToken: string; }>("/auth/login", formData);
+    if (error) {
+      throw error;
+    }
+    if (!data || !data.accessToken) {
+      throw new Error("Cannot be verified.");
+    }
+    localStorage.setItem("jwtToken", data.accessToken);
   }
 );
 
@@ -21,9 +41,20 @@ export const logout = createAsyncThunk<void, any>(
 export const continueSlice = createSlice({
   name: "auth",
   initialState: initialState,
-  reducers: {}
+  reducers: {
+    setAuthenticated: (state: AuthState, action: PayloadAction<boolean>) => {
+      state.isAuthenticated = action.payload;
+    }
+  },
+  extraReducers: (builder: ActionReducerMapBuilder<AuthState>) => {
+    builder.addCase(login.fulfilled, (state: AuthState) => {
+      state.isAuthenticated = true;
+    });
+  }
 });
 
-export const {} = continueSlice.actions;
+export const {
+  setAuthenticated
+} = continueSlice.actions;
 
 export default continueSlice.reducer;
