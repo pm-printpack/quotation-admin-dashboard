@@ -5,6 +5,8 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import StoreProvider from "./StoreProvider";
 import AuthGuard from "./AuthGuard";
 import Head from "next/head";
+import { useAppSelector } from "@/lib/hooks";
+import { RootState } from "@/lib/store";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
