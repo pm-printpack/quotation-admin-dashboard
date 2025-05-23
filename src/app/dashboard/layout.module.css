@@ -1,0 +1,21 @@
+.layoutContainer {
+  min-height: 100vh;
+}
+
+.headLogoVertical {
+  background: url("https://pmpackaging-usa.com/wp-content/uploads/elementor/thumbs/LOGO-qxp9i8lonw5xlof5j7k0xca5x04cqoe20zkkjrg50a.png") no-repeat;
+  background-size: auto 100%;
+  background-position: center center;
+  height: 65px;
+  filter: invert(100%);
+  margin: 16px;
+}
+
+.layoutContent {
+  padding: 16px 40px;
+  min-height: 360px;
+}
+
+.layoutFooter {
+  text-align: center;
+}
