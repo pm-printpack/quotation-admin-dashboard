@@ -17,7 +17,6 @@ export default function Login() {
   const dispath = useAppDispatch();
 
   const onFinish = useCallback((values: FormValue) => {
-    console.log(values);
     dispath(login(values)).unwrap();
   }, []);
 

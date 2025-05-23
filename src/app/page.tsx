@@ -1,100 +1,61 @@
 "use client";
 import "@ant-design/v5-patch-for-react-19";
-import Image from "next/image";
 import styles from "./page.module.css";
-import { Button } from "antd";
+import { Button, Layout, Menu, MenuProps, theme } from "antd";
+import { useAppSelector } from "@/lib/hooks";
+import { RootState } from "@/lib/store";
+import Sider from "antd/es/layout/Sider";
+import { Key, ReactNode, useCallback, useMemo, useState } from "react";
+import { ItemType, MenuItemType } from "antd/es/menu/interface";
+import { AuditOutlined, BarChartOutlined, UserOutlined } from "@ant-design/icons";
+import { Content, Footer } from "antd/es/layout/layout";
+
+type MenuItem = Required<MenuProps>["items"][number];
 
 export default function Home() {
+  const isAuthenticated: boolean = useAppSelector((state: RootState) => state.auth.isAuthenticated);
+  const [collapsed, setCollapsed] = useState(false);
+  const { token: { colorBgContainer } } = theme.useToken();
+
+  const onSiderCollapse = useCallback((value: boolean) => {
+    setCollapsed(value);
+  }, []);
+
+  const getItem = useCallback((label: ReactNode, key: Key, icon?: ReactNode, children?: ItemType<MenuItemType>[]): ItemType<MenuItemType> => {
+    return {
+      key,
+      icon,
+      children,
+      label
+    } as MenuItem;
+  }, []);
+
+  const menuItems: ItemType<MenuItemType>[] = useMemo(() => [
+    getItem("Home", "home", <BarChartOutlined />),
+    getItem("Customers", "customers", <UserOutlined />),
+    getItem("Admins", "admins", <AuditOutlined />)
+  ], [getItem]);
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    isAuthenticated
+    ?
+    (
+      <Layout className={styles.layoutContainer}>
+        <Sider collapsible collapsed={collapsed} onCollapse={onSiderCollapse}>
+          <div className={styles.headLogoVertical}></div>
+          <Menu theme="dark" defaultSelectedKeys={["home"]} mode="inline" items={menuItems} />
+        </Sider>
+        <Layout>
+          <Content className={styles.layoutContent} style={{backgroundColor: colorBgContainer}}>
 
-        <Button type="primary">Button</Button>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          </Content>
+          <Footer className={styles.layoutFooter} style={{backgroundColor: colorBgContainer}}>
+            PM Printing Packaging Inc ©{new Date().getFullYear()} Created by Cory
+          </Footer>
+        </Layout>
+      </Layout>
+    )
+    :
+    null
   );
 }

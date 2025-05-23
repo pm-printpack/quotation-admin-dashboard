@@ -2,6 +2,7 @@
 
 import { setAuthenticated } from "@/lib/features/auth.slice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { RootState } from "@/lib/store";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import { usePathname, useRouter } from "next/navigation";
 import { PropsWithChildren, useEffect, useState } from "react";
@@ -23,7 +24,7 @@ export default function AuthGuard({ children }: PropsWithChildren) {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const isAuthenticated: boolean = useAppSelector((state) => state.auth.isAuthenticated);
+  const isAuthenticated: boolean = useAppSelector((state: RootState) => state.auth.isAuthenticated);
   const [allowed, setAllowed] = useState(false);
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function AuthGuard({ children }: PropsWithChildren) {
       const payload: JwtPayload | null = getPayload(token);
       if (payload && payload.exp && payload.exp * 1000 > Date.now()) {
         isValid = true;
+        dispatch(setAuthenticated(true));
       } else {
         // expired or bad token → remove it
         localStorage.removeItem("jwtToken");
