@@ -38,7 +38,7 @@ export const logout = createAsyncThunk<void, any>(
   }
 );
 
-export const continueSlice = createSlice({
+export const authSlice = createSlice({
   name: "auth",
   initialState: initialState,
   reducers: {
@@ -55,6 +55,6 @@ export const continueSlice = createSlice({
 
 export const {
   setAuthenticated
-} = continueSlice.actions;
+} = authSlice.actions;
 
-export default continueSlice.reducer;
+export default authSlice.reducer;

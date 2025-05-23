@@ -44,7 +44,7 @@ export default function DashboardLayout({children}: PropsWithChildren) {
     router.push(`/dashboard${selectedKeys[0]}`);
   }, [router]);
 
-  const defaultSelectedKeys: string[] = useMemo(() => [pathname.replace(/^\/dashboard\//, "/")], [pathname]);
+  const defaultSelectedKeys: string[] = useMemo(() => [pathname.replace(/^\/dashboard/, "") || "/"], [pathname]);
 
   return (
     isAuthenticated

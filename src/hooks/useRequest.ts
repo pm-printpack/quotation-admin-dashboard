@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { unauthorized } from "next/navigation";
 import queryString from "query-string";
 
 type ResponseBody<ResponseDataType = Record<string, any>> = {
@@ -14,10 +15,18 @@ type Response<ResponseDataType = Record<string, any>> = {
 
 async function request<RequestDataType = any, ResponseDataType = Record<string, any>>(method: string, path: string, data?: RequestDataType, requestConfig?: AxiosRequestConfig<RequestDataType>): Promise<Response<ResponseDataType>> {
   try {
+    const token: string | null = localStorage.getItem("jwtToken");
+    if (!token) {
+      throw new Error("Unauthorized");
+    }
     const { data: responseData }: AxiosResponse<ResponseBody<ResponseDataType>, RequestDataType> = await axios({
       url: `${process.env.NEXT_PUBLIC_API_BASE}${path}`,
       data: data,
-      headers: { "Content-Type": "application/json", ...requestConfig?.headers },
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+        ...requestConfig?.headers
+      },
       ...requestConfig,
       method: method
     });
