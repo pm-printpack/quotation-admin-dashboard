@@ -8,7 +8,7 @@ import TabPane from "antd/es/tabs/TabPane";
 import { usePathname, useRouter } from "next/navigation";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
-export default function AdminsLayout({children}: PropsWithChildren) {
+export default function CustomersLayout({children}: PropsWithChildren) {
   const { token: { colorBgContainer } } = theme.useToken();
   const pathname: string = usePathname();
   const router: AppRouterInstance = useRouter();
@@ -23,12 +23,12 @@ export default function AdminsLayout({children}: PropsWithChildren) {
   const items: TabsProps["items"] = [
     {
       key: "/list",
-      label: '客户列表',
+      label: "客户列表",
       children: children
     },
     {
-      key: "/levels",
-      label: '客户等级',
+      key: "/tiers",
+      label: "客户等级",
       children: children
     }
   ];
@@ -43,10 +43,7 @@ export default function AdminsLayout({children}: PropsWithChildren) {
         <Title level={2}>Customers</Title>
       </Header>
       <Content style={{ backgroundColor: colorBgContainer }}>
-        <Tabs defaultActiveKey={defaultActiveKey} items={items} onChange={onChange}>
-          {/* <TabPane id="/list" tabKey="/list" tab="客户列表">{children}</TabPane>
-          <TabPane id="/levels" tabKey="/levels" tab="客户等级">{children}</TabPane> */}
-        </Tabs>
+        <Tabs defaultActiveKey={defaultActiveKey} items={items} onChange={onChange} />
       </Content>
     </Layout>
   )

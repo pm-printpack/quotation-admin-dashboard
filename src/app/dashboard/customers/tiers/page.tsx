@@ -6,14 +6,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Text from "antd/es/typography/Text";
 import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
 import DoubleCheckedButton from "@/components/DoubleCheckedButton";
-import { CustomerLevel, deleteCustomerLevel, fetchCustomerLevels, updateCustomerLevel } from "@/lib/features/customerlevels.slice";
+import { CustomerTier, deleteCustomerTier, fetchCustomerTiers, updateCustomerTier } from "@/lib/features/customer-tiers.slice";
 import EditableTable from "@/components/table/EditableTable";
 import { EditableColumnsType } from "@/components/table/EditableCell";
 
-export default function Admins() {
+export default function CustomerTierPage() {
   const dispatch = useAppDispatch();
-  const customerLevels: CustomerLevel[] = useAppSelector((state: RootState) => state.customerLevels.list);
-  const loading: boolean = useAppSelector((state: RootState) => state.customerLevels.loading);
+  const customerTiers: CustomerTier[] = useAppSelector((state: RootState) => state.customerTiers.list);
+  const loading: boolean = useAppSelector((state: RootState) => state.customerTiers.loading);
   const [editingId, setEditingId] = useState<number>(NaN);
   
   const onEdit = useCallback((id: number) => {
@@ -22,12 +22,12 @@ export default function Admins() {
     }
   }, [setEditingId]);
 
-  const onEditSubmit = useCallback(async (record: CustomerLevel | undefined | null, preRecord: CustomerLevel) => {
+  const onEditSubmit = useCallback(async (record: CustomerTier | undefined | null, preRecord: CustomerTier) => {
     if (record) {
-      await dispatch(updateCustomerLevel({id: preRecord.id, customerLevel: record})).unwrap();
+      await dispatch(updateCustomerTier({id: preRecord.id, customerTier: record})).unwrap();
       setEditingId(NaN);
     }
-  }, [dispatch, updateCustomerLevel, setEditingId]);
+  }, [dispatch, updateCustomerTier, setEditingId]);
 
   const onEditCancel = useCallback(() => {
     setEditingId(NaN);
@@ -35,20 +35,20 @@ export default function Admins() {
 
   const onDelete = useCallback((id: number) => {
     return async () => {
-      await dispatch(deleteCustomerLevel(id)).unwrap();
-      await dispatch(fetchCustomerLevels()).unwrap();
+      await dispatch(deleteCustomerTier(id)).unwrap();
+      await dispatch(fetchCustomerTiers()).unwrap();
     };
-  }, [dispatch, deleteCustomerLevel, fetchCustomerLevels]);
+  }, [dispatch, deleteCustomerTier, fetchCustomerTiers]);
 
   useEffect(() => {
-    dispatch(fetchCustomerLevels()).unwrap();
+    dispatch(fetchCustomerTiers()).unwrap();
   }, []);
 
-  const columns: EditableColumnsType<CustomerLevel> = useMemo(() => [
+  const columns: EditableColumnsType<CustomerTier> = useMemo(() => [
     {
       title: "客户等级",
-      dataIndex: "level",
-      key: "level",
+      dataIndex: "name",
+      key: "name",
       width: "8%",
       editable: true,
       rules: [
@@ -57,7 +57,7 @@ export default function Admins() {
           message: "请输入客户等级!"
         }
       ],
-      render: (level: string) => <Text>{level}</Text>
+      render: (name: string) => <Text>{name}</Text>
     },
     {
       title: "数码利润率/%",
@@ -168,9 +168,9 @@ export default function Admins() {
       title: "操作",
       width: "9%",
       type: "operation",
-      render: (_, record: CustomerLevel) => (
+      render: (_, record: CustomerTier) => (
         <Space size="middle">
-          <Tooltip title={`修改等级（${record.level}）的信息`}>
+          <Tooltip title={`修改等级（${record.name}）的信息`}>
             <Button type="text" shape="circle" size="middle" disabled={!!editingId} icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
           </Tooltip>
           <DoubleCheckedButton
@@ -182,11 +182,11 @@ export default function Admins() {
               danger: true
             }}
             tooltipProps={{
-              title: `删除等级（${record.level}）`
+              title: `删除等级（${record.name}）`
             }}
             popconfirmProps={{
-              title: `删除（${record.level}）`,
-              description: `你确定想删除等级（${record.level}）吗？`,
+              title: `删除（${record.name}）`,
+              description: `你确定想删除等级（${record.name}）吗？`,
               onConfirm: onDelete(record.id),
               okText: "确定",
               cancelText: "再想想"
@@ -202,12 +202,12 @@ export default function Admins() {
       <Flex vertical={false} justify="flex-end">
         <Button type="primary" icon={<UserAddOutlined />}>添加新等级</Button>
       </Flex>
-      <EditableTable<CustomerLevel>
+      <EditableTable<CustomerTier>
         editingId={editingId}
         onEditSubmit={onEditSubmit}
         onEditCancel={onEditCancel}
         columns={columns}
-        dataSource={customerLevels}
+        dataSource={customerTiers}
         loading={loading}
         pagination={false}
       />

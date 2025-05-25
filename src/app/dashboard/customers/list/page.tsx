@@ -7,11 +7,11 @@ import Text from "antd/es/typography/Text";
 import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
 import DoubleCheckedButton from "@/components/DoubleCheckedButton";
 import { Customer, deleteCustomer, fetchCustomers, updateCustomer } from "@/lib/features/customers.slice";
-import { CustomerLevel } from "@/lib/features/customerlevels.slice";
+import { CustomerTier } from "@/lib/features/customer-tiers.slice";
 import EditableTable from "@/components/table/EditableTable";
 import { EditableColumnsType } from "@/components/table/EditableCell";
 
-export default function Admins() {
+export default function CustomerListPage() {
   const dispatch = useAppDispatch();
   const customers: Customer[] = useAppSelector((state: RootState) => state.customers.list);
   const loading: boolean = useAppSelector((state: RootState) => state.customers.loading);
@@ -114,8 +114,8 @@ export default function Admins() {
     },
     {
       title: "客户等级",
-      dataIndex: "level",
-      key: "level",
+      dataIndex: "tier",
+      key: "tier",
       width: "9%",
       editable: true,
       rules: [
@@ -124,7 +124,7 @@ export default function Admins() {
           message: "请选择客户等级!"
         }
       ],
-      render: (level: CustomerLevel) => <Text>{level.level}</Text>
+      render: (tier: CustomerTier) => <Text>{tier.name}</Text>
     },
     {
       title: "操作",

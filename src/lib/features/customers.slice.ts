@@ -1,6 +1,6 @@
 import { useRequest } from "@/hooks/useRequest";
 import { ActionReducerMapBuilder, PayloadAction, SerializedError, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { CustomerLevel } from "./customerlevels.slice";
+import { CustomerTier } from "./customer-tiers.slice";
 
 const { get, put, delete: deleteFn } = useRequest();
 
@@ -11,7 +11,7 @@ export type Customer = {
   email: string;
   orgName: string;
   phone: string;
-  level: CustomerLevel;
+  tier: CustomerTier;
 };
 
 interface CustomersState {
@@ -73,7 +73,7 @@ export const customersSlice = createSlice({
     });
     [fetchCustomers.rejected, updateCustomer.rejected, deleteCustomer.rejected].forEach((asyncRejectedAction) => {
       builder.addCase(asyncRejectedAction, (state: CustomersState, action: PayloadAction<unknown, string, unknown, SerializedError>) => {
-        console.error("admins slice error: ", action.error);
+        console.error("customers slice error: ", action.error);
         state.loading = false;
       });
     });

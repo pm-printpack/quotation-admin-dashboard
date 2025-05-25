@@ -78,10 +78,8 @@ export default function EditableTable<RecordType extends RecordTypeWithId>({
     return column;
   }), (value: any, record: RecordType, index?: number, col?: EditableColumnType<RecordType>) => {
     const editing: boolean = record.id === editingId;
-    if (form.current) {
-      if (editing) {
-        form.current.setFieldsValue(JSON.parse(JSON.stringify(record)));
-      }
+    if (editing) {
+      form.current?.setFieldsValue(JSON.parse(JSON.stringify(record)));
     }
     return {
       inputType: typeof value === "number" ? "number" : "text",

@@ -2,7 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./features/auth.slice";
 import adminsReducer from "./features/admins.slice";
 import customersReducer from "./features/customers.slice";
-import CustomerLevelsReducer from "./features/customerlevels.slice";
+import CustomerTiersReducer from "./features/customer-tiers.slice";
 
 export const makeStore = () => {
   return configureStore({
@@ -10,7 +10,7 @@ export const makeStore = () => {
       auth: authReducer,
       admins: adminsReducer,
       customers: customersReducer,
-      customerLevels: CustomerLevelsReducer
+      customerTiers: CustomerTiersReducer
     }
   })
 }

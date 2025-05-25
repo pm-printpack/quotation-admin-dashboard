@@ -10,7 +10,7 @@ import DoubleCheckedButton from "@/components/DoubleCheckedButton";
 import EditableTable from "@/components/table/EditableTable";
 import { ColumnsType } from "antd/es/table";
 
-export default function Admins() {
+export default function AdminsPage() {
   const dispatch = useAppDispatch();
   const admins: Admin[] = useAppSelector((state: RootState) => state.admins.list);
   const loading: boolean = useAppSelector((state: RootState) => state.admins.loading);
