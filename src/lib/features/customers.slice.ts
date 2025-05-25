@@ -42,7 +42,7 @@ export const fetchCustomers = createAsyncThunk<Customer[], void>(
 
 type UpdateOrCreatCustomerParams = {
   id: number;
-  customer: Customer | NewCustomer;
+  customer: Partial<Customer> | NewCustomer;
 };
 
 export const updateOrCreatCustomer = createAsyncThunk<void, UpdateOrCreatCustomerParams>(

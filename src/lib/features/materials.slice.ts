@@ -78,7 +78,7 @@ export const fetchMaterials = createAsyncThunk<Material[], void>(
 
 type UpdateOrCreatMaterialParams = {
   id: number;
-  material: Material | NewMaterial;
+  material: Partial<Material> | NewMaterial;
 };
 
 export const updateOrCreatMaterial = createAsyncThunk<void, UpdateOrCreatMaterialParams>(

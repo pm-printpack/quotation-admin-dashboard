@@ -37,7 +37,7 @@ export const fetchAdmins = createAsyncThunk<Admin[], void>(
 
 type UpdateOrCreatAdminParams = {
   id: number;
-  admin: Admin | NewAdmin;
+  admin: Partial<Admin> | NewAdmin;
 };
 
 export const updateOrCreatAdmin = createAsyncThunk<void, UpdateOrCreatAdminParams>(

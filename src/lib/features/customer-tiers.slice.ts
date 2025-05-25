@@ -44,14 +44,14 @@ export const fetchCustomerTiers = createAsyncThunk<CustomerTier[], void>(
 
 type UpdateOrCreatCustomerTierParams = {
   id: number;
-  customerTier: CustomerTier | NewCustomerTier;
+  customerTier: Partial<CustomerTier> | NewCustomerTier;
 };
 
 export const updateOrCreatCustomerTier = createAsyncThunk<void, UpdateOrCreatCustomerTierParams>(
   "customer-tiers/updateOrCreat",
   async ({id, customerTier}: UpdateOrCreatCustomerTierParams, {dispatch}): Promise<void> => {
     if (id === -1) { // create a new one
-      const {id, ...newCustomerTier} = customerTier;
+      const {id, ...newCustomerTier} = customerTier as NewCustomerTier;
       const {error} = await post<Omit<NewCustomerTier, "id">>("/customer-tiers", newCustomerTier);
       if (error) {
         throw error;
