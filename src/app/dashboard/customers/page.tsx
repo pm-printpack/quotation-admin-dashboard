@@ -3,7 +3,7 @@ import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.share
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default function CustomerPage() {
+export default function CustomersPage() {
   const pathname: string = usePathname();
   const router: AppRouterInstance = useRouter();
 

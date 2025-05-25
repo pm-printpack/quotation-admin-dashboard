@@ -1,8 +1,8 @@
 import { Button, Form, FormInstance, Space, Table, TableProps } from "antd";
 import { AnyObject } from "antd/es/_util/type";
 import { Reference } from "rc-table";
-import { PropsWithChildren, Ref, RefAttributes, useCallback, useMemo, useRef } from "react";
-import EditableCell, { EditableColumnType, wrapColumns } from "./EditableCell";
+import { PropsWithChildren, Ref, RefAttributes, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import EditableCell, { EditableCellInputType, EditableColumnType, wrapColumns } from "./EditableCell";
 import DoubleCheckedButton from "../DoubleCheckedButton";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 
@@ -81,12 +81,18 @@ export default function EditableTable<RecordType extends RecordTypeWithId>({
     }
     return column;
   }), (value: any, record: RecordType, index?: number, col?: EditableColumnType<RecordType>) => {
-    const editing: boolean = record.id === editingId;
-    if (editing) {
-      form.current?.setFieldsValue(JSON.parse(JSON.stringify(record)));
-    }
+    const [editing, setEditing] = useState<boolean>(record.id === editingId);
+    useEffect(() => {
+      setEditing(record.id === editingId);
+    }, [record.id, editingId]);
+
+    useEffect(() => {
+      if (editing) {
+        form.current?.setFieldsValue(JSON.parse(JSON.stringify(record)));
+      }
+    }, [editing])
     return {
-      inputType: col?.type === "credential" ? "credential" : (typeof value === "number" ? "number" : "text"),
+      inputType: col?.type ? (col.type === "credential" ? "credential" : col.type as EditableCellInputType) : (typeof value === "number" ? "number" : "text"),
       editing: editing
     }
   }) : [], [editingId]);

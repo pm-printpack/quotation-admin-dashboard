@@ -7,7 +7,7 @@ import { RootState } from "@/lib/store";
 import Sider from "antd/es/layout/Sider";
 import { Key, PropsWithChildren, ReactNode, useCallback, useMemo, useState } from "react";
 import { ItemType, MenuItemType } from "antd/es/menu/interface";
-import { AuditOutlined, BarChartOutlined, UserOutlined } from "@ant-design/icons";
+import { AuditOutlined, BarChartOutlined, BuildOutlined, UserOutlined } from "@ant-design/icons";
 import { Content, Footer } from "antd/es/layout/layout";
 import { SelectInfo } from "rc-menu/lib/interface";
 import { usePathname, useRouter } from "next/navigation";
@@ -35,8 +35,9 @@ export default function DashboardLayout({children}: PropsWithChildren) {
 
   const menuItems: ItemType<MenuItemType>[] = useMemo(() => [
     getItem("Home", "/", <BarChartOutlined />),
-    getItem("Customers", "/customers", <UserOutlined />),
-    getItem("Admins", "/admins", <AuditOutlined />)
+    getItem("材料管理", "/materials", <BuildOutlined />),
+    getItem("客户管理", "/customers", <UserOutlined />),
+    getItem("系统管理员", "/admins", <AuditOutlined />)
   ], [getItem]);
 
   const onMenuSelect = useCallback((info: SelectInfo) => {

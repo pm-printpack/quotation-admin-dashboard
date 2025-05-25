@@ -3,10 +3,11 @@ import type { AnyObject } from "antd/es/_util/type";
 import { Rule } from "antd/es/form";
 import FormItem from "antd/es/form/FormItem";
 import Password from "antd/es/input/Password";
+import TextArea from "antd/es/input/TextArea";
 import type { ColumnGroupType, ColumnsType, ColumnType } from "antd/es/table";
-import type { PropsWithChildren } from "react";
+import { ReactNode, useMemo, type PropsWithChildren } from "react";
 
-type ColumnCategory = "operation" | "credential" | "normal";
+type ColumnCategory = "operation" | EditableCellInputType;
 
 interface EditableBaseColumnType {
   editable?: boolean;
@@ -20,7 +21,7 @@ export interface EditableColumnGroupType<RecordType = AnyObject> extends ColumnG
 
 export type EditableColumnsType<RecordType = AnyObject> = ColumnsType<RecordType> & (EditableColumnGroupType<RecordType> | EditableColumnType<RecordType>)[]
 
-export type EditableCellInputType = "number" | "text" | "enum" | "credential";
+export type EditableCellInputType = "number" | "text" | "enum" | "credential" | "textarea";
 
 export interface EditableBaseCellProps {
   editing: boolean;
@@ -46,7 +47,17 @@ export default function EditableCell<RecordType extends AnyObject>({
   children,
   ...restProps
 }: PropsWithChildren<EditableCellProps<RecordType>>) {
-  const inputNode = inputType === "number" ? <InputNumber min={0} /> : <Input />;
+  // const inputNode = inputType === "number" ? <InputNumber min={0} /> : <Input />;
+  const inputNode: ReactNode = useMemo(() => {
+    switch (inputType) {
+      case "number":
+        return <InputNumber min={0} />;
+      case "textarea":
+        return <TextArea rows={6} />
+      default:
+        return <Input />;
+    }
+  }, [inputType]);
   return (
     <td {...restProps}>
       {

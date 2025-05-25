@@ -3,6 +3,7 @@ import authReducer from "./features/auth.slice";
 import adminsReducer from "./features/admins.slice";
 import customersReducer from "./features/customers.slice";
 import CustomerTiersReducer from "./features/customer-tiers.slice";
+import MaterialsReducer from "./features/materials.slice";
 
 export const makeStore = () => {
   return configureStore({
@@ -10,7 +11,8 @@ export const makeStore = () => {
       auth: authReducer,
       admins: adminsReducer,
       customers: customersReducer,
-      customerTiers: CustomerTiersReducer
+      customerTiers: CustomerTiersReducer,
+      materials: MaterialsReducer
     }
   })
 }

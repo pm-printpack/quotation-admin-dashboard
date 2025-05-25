@@ -42,7 +42,6 @@ export default function CustomerListPage() {
 
   const onDelete = useCallback((id: number) => {
     return async () => {
-      console.log("sadasdas:", id);
       await dispatch(deleteCustomer(id)).unwrap();
       await dispatch(fetchCustomers()).unwrap();
     };

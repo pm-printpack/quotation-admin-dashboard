@@ -10,7 +10,7 @@ import { addRecord, CustomerTier, deleteAddingRecord, deleteCustomerTier, fetchC
 import EditableTable from "@/components/table/EditableTable";
 import { EditableColumnsType } from "@/components/table/EditableCell";
 
-export default function CustomerTierPage() {
+export default function CustomerTiersPage() {
   const dispatch = useAppDispatch();
   const customerTiers: CustomerTier[] = useAppSelector((state: RootState) => state.customerTiers.list);
   const loading: boolean = useAppSelector((state: RootState) => state.customerTiers.loading);
