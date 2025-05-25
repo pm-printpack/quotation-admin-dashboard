@@ -43,7 +43,9 @@ export default function EditableTable<RecordType extends RecordTypeWithId>({
   }, []);
 
   columns = useMemo(() => columns ? wrapColumns(columns.map((column: EditableColumnType<RecordType>) => {
-    if (column.type === "operation") {
+    if (column.type === "credential") {
+
+    } else if (column.type === "operation") {
       return {
         ...column,
         render: (_, record: RecordType, index: number) => {
@@ -82,7 +84,7 @@ export default function EditableTable<RecordType extends RecordTypeWithId>({
       form.current?.setFieldsValue(JSON.parse(JSON.stringify(record)));
     }
     return {
-      inputType: typeof value === "number" ? "number" : "text",
+      inputType: col?.type === "credential" ? "credential" : (typeof value === "number" ? "number" : "text"),
       editing: editing
     }
   }) : [], [editingId]);

@@ -2,10 +2,11 @@ import { Input, InputNumber } from "antd";
 import type { AnyObject } from "antd/es/_util/type";
 import { Rule } from "antd/es/form";
 import FormItem from "antd/es/form/FormItem";
+import Password from "antd/es/input/Password";
 import type { ColumnGroupType, ColumnsType, ColumnType } from "antd/es/table";
 import type { PropsWithChildren } from "react";
 
-type ColumnCategory = "operation" | "normal";
+type ColumnCategory = "operation" | "credential" | "normal";
 
 interface EditableBaseColumnType {
   editable?: boolean;
@@ -19,7 +20,7 @@ export interface EditableColumnGroupType<RecordType = AnyObject> extends ColumnG
 
 export type EditableColumnsType<RecordType = AnyObject> = ColumnsType<RecordType> & (EditableColumnGroupType<RecordType> | EditableColumnType<RecordType>)[]
 
-export type EditableCellInputType = "number" | "text" | "enum";
+export type EditableCellInputType = "number" | "text" | "enum" | "credential";
 
 export interface EditableBaseCellProps {
   editing: boolean;
@@ -52,6 +53,30 @@ export default function EditableCell<RecordType extends AnyObject>({
         editing
         ?
         (
+          record.id === -1 && inputType === "credential"
+          ?
+          <>
+            <FormItem
+              name={dataIndex}
+              initialValue={record[dataIndex as string]}
+              rules={rules}
+            >
+              <Input placeholder="新账号" />
+            </FormItem>
+            <FormItem
+              name="password"
+              style={{ margin: 0 }}
+              rules={[
+                {
+                  required: true,
+                  message: "请输入密码!"
+                }
+              ]}
+            >
+              <Password placeholder="新密码" />
+            </FormItem>
+          </>
+          :
           <FormItem
             name={dataIndex}
             initialValue={record[dataIndex as string]}

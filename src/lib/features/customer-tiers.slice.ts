@@ -4,6 +4,7 @@ import { ActionReducerMapBuilder, PayloadAction, SerializedError, createAsyncThu
 const { get, post, put, delete: deleteFn } = useRequest();
 
 export type NewCustomerTier = {
+  id: number;
   name: string;
   digitalPrintingProfitMargin: number;
   offsetPrintingProfitMargin: number;
@@ -15,7 +16,6 @@ export type NewCustomerTier = {
 }
 
 export interface CustomerTier extends NewCustomerTier {
-  id: number;
   createdAt: Date;
   isArchived: boolean;
   archivedAt?: Date;
@@ -42,17 +42,17 @@ export const fetchCustomerTiers = createAsyncThunk<CustomerTier[], void>(
   }
 );
 
-type UpdateCustomerTierParams = {
+type UpdateOrCreatCustomerTierParams = {
   id: number;
-  customerTier: CustomerTier;
+  customerTier: CustomerTier | NewCustomerTier;
 };
 
-export const updateOrCreatCustomerTier = createAsyncThunk<void, UpdateCustomerTierParams>(
-  "customer-tiers/update",
-  async ({id, customerTier}: UpdateCustomerTierParams, {dispatch}): Promise<void> => {
+export const updateOrCreatCustomerTier = createAsyncThunk<void, UpdateOrCreatCustomerTierParams>(
+  "customer-tiers/updateOrCreat",
+  async ({id, customerTier}: UpdateOrCreatCustomerTierParams, {dispatch}): Promise<void> => {
     if (id === -1) { // create a new one
-      const {id, ...newCustomerTier} = customerTier
-      const {error} = await post<NewCustomerTier>("/customer-tiers", newCustomerTier);
+      const {id, ...newCustomerTier} = customerTier;
+      const {error} = await post<Omit<NewCustomerTier, "id">>("/customer-tiers", newCustomerTier);
       if (error) {
         throw error;
       }
@@ -69,9 +69,11 @@ export const updateOrCreatCustomerTier = createAsyncThunk<void, UpdateCustomerTi
 export const deleteCustomerTier = createAsyncThunk<void, number>(
   "customer-tiers/delete",
   async (id: number, thunkApi): Promise<void> => {
-    const {error} = await deleteFn(`/customer-tiers/${id}`);
-    if (error) {
-      throw error;
+    if (id !== -1) {
+      const {error} = await deleteFn(`/customer-tiers/${id}`);
+      if (error) {
+        throw error;
+      }
     }
   }
 );
@@ -94,6 +96,13 @@ export const customersSlice = createSlice({
         } as CustomerTier,
         ...state.list
       ];
+    },
+    deleteAddingRecord: (state: CustomerTiersState) => {
+      const index: number = state.list.findIndex((item: CustomerTier) => item.id === -1);
+      if (index !== -1) {
+        state.list.splice(index, 1);
+        state.list = [...state.list];
+      }
     }
   },
   extraReducers: (builder: ActionReducerMapBuilder<CustomerTiersState>) => {
@@ -112,8 +121,8 @@ export const customersSlice = createSlice({
       state.list = action.payload;
       state.loading = false;
     });
-    builder.addCase(updateOrCreatCustomerTier.fulfilled, (state: CustomerTiersState, action: PayloadAction<void, string, {arg: UpdateCustomerTierParams}>) => {
-      const {id, customerTier}: UpdateCustomerTierParams = action.meta.arg;
+    builder.addCase(updateOrCreatCustomerTier.fulfilled, (state: CustomerTiersState, action: PayloadAction<void, string, {arg: UpdateOrCreatCustomerTierParams}>) => {
+      const {id, customerTier}: UpdateOrCreatCustomerTierParams = action.meta.arg;
       if (id !== -1) {
         const targetIndex: number = state.list.findIndex((item: CustomerTier) => item.id === id);
         if (targetIndex > -1) { // targeted
@@ -130,7 +139,8 @@ export const customersSlice = createSlice({
 });
 
 export const {
-  addRecord
+  addRecord,
+  deleteAddingRecord
 } = customersSlice.actions;
 
 export default customersSlice.reducer;

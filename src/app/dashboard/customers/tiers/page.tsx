@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Text from "antd/es/typography/Text";
 import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
 import DoubleCheckedButton from "@/components/DoubleCheckedButton";
-import { addRecord, CustomerTier, deleteCustomerTier, fetchCustomerTiers, updateOrCreatCustomerTier } from "@/lib/features/customer-tiers.slice";
+import { addRecord, CustomerTier, deleteAddingRecord, deleteCustomerTier, fetchCustomerTiers, updateOrCreatCustomerTier } from "@/lib/features/customer-tiers.slice";
 import EditableTable from "@/components/table/EditableTable";
 import { EditableColumnsType } from "@/components/table/EditableCell";
 
@@ -25,7 +25,7 @@ export default function CustomerTierPage() {
     return () => {
       setEditingId(id);
     }
-  }, [setEditingId]);
+  }, [dispatch, setEditingId]);
 
   const onEditSubmit = useCallback(async (record: CustomerTier | undefined | null, preRecord: CustomerTier) => {
     if (record) {
@@ -35,8 +35,9 @@ export default function CustomerTierPage() {
   }, [dispatch, updateOrCreatCustomerTier, setEditingId]);
 
   const onEditCancel = useCallback(() => {
+    dispatch(deleteAddingRecord());
     setEditingId(NaN);
-  }, [setEditingId]);
+  }, [dispatch, deleteAddingRecord, setEditingId]);
 
   const onDelete = useCallback((id: number) => {
     return async () => {

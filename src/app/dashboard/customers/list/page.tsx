@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Text from "antd/es/typography/Text";
 import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
 import DoubleCheckedButton from "@/components/DoubleCheckedButton";
-import { Customer, deleteCustomer, fetchCustomers, updateCustomer } from "@/lib/features/customers.slice";
+import { addRecord, Customer, deleteAddingRecord, deleteCustomer, fetchCustomers, updateOrCreatCustomer } from "@/lib/features/customers.slice";
 import { CustomerTier } from "@/lib/features/customer-tiers.slice";
 import EditableTable from "@/components/table/EditableTable";
 import { EditableColumnsType } from "@/components/table/EditableCell";
@@ -17,6 +17,11 @@ export default function CustomerListPage() {
   const loading: boolean = useAppSelector((state: RootState) => state.customers.loading);
   const [editingId, setEditingId] = useState<number>(NaN);
   
+  const onAdd = useCallback(() => {
+    dispatch(addRecord());
+    setEditingId(-1);
+  }, [dispatch, addRecord, setEditingId]);
+
   const onEdit = useCallback((id: number) => {
     return () => {
       setEditingId(id);
@@ -25,17 +30,19 @@ export default function CustomerListPage() {
 
   const onEditSubmit = useCallback(async (record: Customer | undefined | null, preRecord: Customer) => {
     if (record) {
-      await dispatch(updateCustomer({id: preRecord.id, customer: record})).unwrap();
+      await dispatch(updateOrCreatCustomer({id: preRecord.id, customer: record})).unwrap();
       setEditingId(NaN);
     }
-  }, [dispatch, updateCustomer, setEditingId]);
+  }, [dispatch, updateOrCreatCustomer, setEditingId]);
 
   const onEditCancel = useCallback(() => {
+    dispatch(deleteAddingRecord());
     setEditingId(NaN);
-  }, [setEditingId]);
+  }, [dispatch, deleteAddingRecord, setEditingId]);
 
   const onDelete = useCallback((id: number) => {
     return async () => {
+      console.log("sadasdas:", id);
       await dispatch(deleteCustomer(id)).unwrap();
       await dispatch(fetchCustomers()).unwrap();
     };
@@ -47,6 +54,7 @@ export default function CustomerListPage() {
       dataIndex: "username",
       key: "username",
       width: "23%",
+      type: "credential",
       editable: true,
       rules: [
         {
@@ -124,7 +132,7 @@ export default function CustomerListPage() {
           message: "请选择客户等级!"
         }
       ],
-      render: (tier: CustomerTier) => <Text>{tier.name}</Text>
+      render: (tier?: CustomerTier) => <Text>{tier?.name}</Text>
     },
     {
       title: "操作",
@@ -168,7 +176,7 @@ export default function CustomerListPage() {
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>
       <Flex vertical={false} justify="flex-end">
-        <Button type="primary" icon={<UserAddOutlined />}>添加新客户</Button>
+        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>添加新客户</Button>
       </Flex>
       <EditableTable<Customer>
         editingId={editingId}

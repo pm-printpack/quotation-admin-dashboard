@@ -2,16 +2,21 @@ import { useRequest } from "@/hooks/useRequest";
 import { ActionReducerMapBuilder, PayloadAction, SerializedError, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { CustomerTier } from "./customer-tiers.slice";
 
-const { get, put, delete: deleteFn } = useRequest();
+const { get, post, put, delete: deleteFn } = useRequest();
 
-export type Customer = {
+type NewCustomer = {
   id: number;
   username: string;
+  password: string;
   name: string;
   email: string;
   orgName: string;
   phone: string;
   tier: CustomerTier;
+};
+
+export interface Customer extends Omit<NewCustomer, "password"> {
+  createdAt: Date;
 };
 
 interface CustomersState {
@@ -35,17 +40,26 @@ export const fetchCustomers = createAsyncThunk<Customer[], void>(
   }
 );
 
-type UpdateCustomerParams = {
+type UpdateOrCreatCustomerParams = {
   id: number;
-  customer: Customer;
+  customer: Customer | NewCustomer;
 };
 
-export const updateCustomer = createAsyncThunk<void, UpdateCustomerParams>(
-  "customers/update",
-  async ({id, customer}: UpdateCustomerParams): Promise<void> => {
-    const {error} = await put<Partial<Customer>>(`/customers/${id}`, customer);
-    if (error) {
-      throw error;
+export const updateOrCreatCustomer = createAsyncThunk<void, UpdateOrCreatCustomerParams>(
+  "customers/updateOrCreat",
+  async ({id, customer}: UpdateOrCreatCustomerParams, {dispatch}): Promise<void> => {
+    if (id === -1) { // create a new one
+      const {id, ...newCustomer} = customer as NewCustomer;
+      const {error} = await post<Omit<NewCustomer, "id">>("/customers", newCustomer);
+      if (error) {
+        throw error;
+      }
+      dispatch(fetchCustomers());
+    } else {
+      const {error} = await put<Partial<Customer>>(`/customers/${id}`, customer);
+      if (error) {
+        throw error;
+      }
     }
   }
 );
@@ -64,14 +78,30 @@ export const customersSlice = createSlice({
   name: "customers",
   initialState: initialState,
   reducers: {
+    addRecord: (state: CustomersState) => {
+      state.list = [
+        {
+          id: -1,
+          tier: {}
+        } as Customer,
+        ...state.list
+      ];
+    },
+    deleteAddingRecord: (state: CustomersState) => {
+      const index: number = state.list.findIndex((item: Customer) => item.id === -1);
+      if (index !== -1) {
+        state.list.splice(index, 1);
+        state.list = [...state.list];
+      }
+    }
   },
   extraReducers: (builder: ActionReducerMapBuilder<CustomersState>) => {
-    [fetchCustomers.pending, updateCustomer.pending, deleteCustomer.pending].forEach((asyncPendingAction) => {
+    [fetchCustomers.pending, updateOrCreatCustomer.pending, deleteCustomer.pending].forEach((asyncPendingAction) => {
       builder.addCase(asyncPendingAction, (state: CustomersState) => {
         state.loading = true;
       });
     });
-    [fetchCustomers.rejected, updateCustomer.rejected, deleteCustomer.rejected].forEach((asyncRejectedAction) => {
+    [fetchCustomers.rejected, updateOrCreatCustomer.rejected, deleteCustomer.rejected].forEach((asyncRejectedAction) => {
       builder.addCase(asyncRejectedAction, (state: CustomersState, action: PayloadAction<unknown, string, unknown, SerializedError>) => {
         console.error("customers slice error: ", action.error);
         state.loading = false;
@@ -81,8 +111,8 @@ export const customersSlice = createSlice({
       state.list = action.payload;
       state.loading = false;
     });
-    builder.addCase(updateCustomer.fulfilled, (state: CustomersState, action: PayloadAction<void, string, {arg: UpdateCustomerParams}>) => {
-      const {id, customer}: UpdateCustomerParams = action.meta.arg;
+    builder.addCase(updateOrCreatCustomer.fulfilled, (state: CustomersState, action: PayloadAction<void, string, {arg: UpdateOrCreatCustomerParams}>) => {
+      const {id, customer}: UpdateOrCreatCustomerParams = action.meta.arg;
       const targetIndex: number = state.list.findIndex((item: Customer) => item.id === id);
       if (targetIndex > -1) { // targeted
         state.list[targetIndex] = {
@@ -93,9 +123,12 @@ export const customersSlice = createSlice({
       }
       state.loading = false;
     });
-}
+  }
 });
 
-export const {} = customersSlice.actions;
+export const {
+  addRecord,
+  deleteAddingRecord
+} = customersSlice.actions;
 
 export default customersSlice.reducer;

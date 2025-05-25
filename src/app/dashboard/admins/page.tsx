@@ -1,5 +1,5 @@
 "use client";
-import { Admin, deleteAdmin, fetchAdmins, updateAdmin } from "@/lib/features/admins.slice";
+import { addRecord, Admin, deleteAddingRecord, deleteAdmin, fetchAdmins, updateOrCreatAdmin } from "@/lib/features/admins.slice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { Button, Flex, Space, Tooltip } from "antd";
@@ -16,6 +16,11 @@ export default function AdminsPage() {
   const loading: boolean = useAppSelector((state: RootState) => state.admins.loading);
   const [editingId, setEditingId] = useState<number>(NaN);
 
+  const onAdd = useCallback(() => {
+    dispatch(addRecord());
+    setEditingId(-1);
+  }, [dispatch, addRecord, setEditingId]);
+
   const onEdit = useCallback((id: number) => {
     return () => {
       setEditingId(id);
@@ -24,14 +29,15 @@ export default function AdminsPage() {
 
   const onEditSubmit = useCallback(async (record: Admin | undefined | null, preRecord: Admin) => {
     if (record) {
-      await dispatch(updateAdmin({id: preRecord.id, admin: record})).unwrap();
+      await dispatch(updateOrCreatAdmin({id: preRecord.id, admin: record})).unwrap();
       setEditingId(NaN);
     }
-  }, [dispatch, updateAdmin, setEditingId]);
+  }, [dispatch, updateOrCreatAdmin, setEditingId]);
 
   const onEditCancel = useCallback(() => {
+    dispatch(deleteAddingRecord());
     setEditingId(NaN);
-  }, [setEditingId]);
+  }, [dispatch, deleteAddingRecord, setEditingId]);
 
   const onDelete = useCallback((id: number) => {
     return async () => {
@@ -111,7 +117,7 @@ export default function AdminsPage() {
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>
       <Flex vertical={false} justify="flex-end">
-        <Button type="primary" icon={<UserAddOutlined />}>添加新管理员</Button>
+        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>添加新管理员</Button>
       </Flex>
       <EditableTable<Admin>
         editingId={editingId}
