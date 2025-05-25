@@ -1,7 +1,7 @@
 import { useRequest } from "@/hooks/useRequest";
 import { ActionReducerMapBuilder, PayloadAction, SerializedError, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-const { get, patch, delete: deleteFn } = useRequest();
+const { get, put, delete: deleteFn } = useRequest();
 
 export type Admin = {
   id: number;
@@ -40,7 +40,7 @@ type UpdateAdminParams = {
 export const updateAdmin = createAsyncThunk<void, UpdateAdminParams>(
   "admins/update",
   async ({id, admin}: UpdateAdminParams): Promise<void> => {
-    const {error} = await patch<{}, Admin[]>(`/admins/${id}`, admin);
+    const {error} = await put<{}, Admin[]>(`/admins/${id}`, admin);
     if (error) {
       throw error;
     }

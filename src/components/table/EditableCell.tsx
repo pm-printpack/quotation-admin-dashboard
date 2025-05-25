@@ -34,7 +34,7 @@ export interface EditableCellProps<RecordType = AnyObject> extends EditableBaseC
   rules?: Rule[];
 };
 
-export default function EditableCell<RecordType = AnyObject>({
+export default function EditableCell<RecordType extends AnyObject>({
   editing,
   dataIndex,
   title,
@@ -45,7 +45,7 @@ export default function EditableCell<RecordType = AnyObject>({
   children,
   ...restProps
 }: PropsWithChildren<EditableCellProps<RecordType>>) {
-  const inputNode = inputType === "number" ? <InputNumber width="auto" /> : <Input width="auto" />;
+  const inputNode = inputType === "number" ? <InputNumber min={0} /> : <Input />;
   return (
     <td {...restProps}>
       {
@@ -54,6 +54,7 @@ export default function EditableCell<RecordType = AnyObject>({
         (
           <FormItem
             name={dataIndex}
+            initialValue={record[dataIndex as string]}
             style={{ margin: 0 }}
             rules={rules}
           >
@@ -67,9 +68,9 @@ export default function EditableCell<RecordType = AnyObject>({
   );
 }
 
-export type GetEditableColumnComponentProps<RecordType = AnyObject> = (record: RecordType, index?: number, column?: EditableColumnType<RecordType>) => EditableBaseCellProps;
+export type GetEditableColumnComponentProps<RecordType = AnyObject> = (value: any, record: RecordType, index?: number, column?: EditableColumnType<RecordType>) => EditableBaseCellProps;
 
-export function wrapColumns<RecordType = AnyObject>(columns: EditableColumnsType<RecordType>, mapping: GetEditableColumnComponentProps<RecordType>): EditableColumnsType<RecordType> {
+export function wrapColumns<RecordType extends AnyObject>(columns: EditableColumnsType<RecordType>, mapping: GetEditableColumnComponentProps<RecordType>): EditableColumnsType<RecordType> {
   return columns.map((col: EditableColumnType<RecordType>) => {
     if (!col.editable) {
       return col;
@@ -81,7 +82,7 @@ export function wrapColumns<RecordType = AnyObject>(columns: EditableColumnsType
         dataIndex: col.dataIndex,
         title: col.title,
         rules: col.rules,
-        ...mapping(record, index, col)
+        ...mapping(record[col.dataIndex as string], record, index, col)
       }),
     };
   }) as EditableColumnsType<RecordType>;

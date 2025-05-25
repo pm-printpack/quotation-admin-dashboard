@@ -1,18 +1,53 @@
 "use client";
-import { Layout, theme } from "antd";
+import { Layout, Tabs, TabsProps, theme } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
 import Title from "antd/es/typography/Title";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useCallback, useMemo } from "react";
 import styles from "./layout.module.css";
+import TabPane from "antd/es/tabs/TabPane";
+import { usePathname, useRouter } from "next/navigation";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 export default function AdminsLayout({children}: PropsWithChildren) {
   const { token: { colorBgContainer } } = theme.useToken();
+  const pathname: string = usePathname();
+  const router: AppRouterInstance = useRouter();
+
+  if (/\/dashboard\/customers\/?$/.test(pathname)) {
+    router.replace("/dashboard/customers/list");
+    return undefined;
+  }
+
+  const defaultActiveKey: string = useMemo(() => `/${(pathname.match(/^\/dashboard\/customers\/([a-zA-Z0-9\-_]*)/) || [])[1] || "list"}`, [pathname]);
+
+  const items: TabsProps["items"] = [
+    {
+      key: "/list",
+      label: '客户列表',
+      children: children
+    },
+    {
+      key: "/levels",
+      label: '客户等级',
+      children: children
+    }
+  ];
+
+  const onChange = useCallback((activeKey: string) => {
+    router.push(`/dashboard/customers${activeKey}`);
+  }, []);
+
   return (
     <Layout className={styles.layoutContainer}>
       <Header style={{ backgroundColor: colorBgContainer }} className={styles.layoutHeader}>
         <Title level={2}>Customers</Title>
       </Header>
-      <Content style={{ backgroundColor: colorBgContainer }}>{children}</Content>
+      <Content style={{ backgroundColor: colorBgContainer }}>
+        <Tabs defaultActiveKey={defaultActiveKey} items={items} onChange={onChange}>
+          {/* <TabPane id="/list" tabKey="/list" tab="客户列表">{children}</TabPane>
+          <TabPane id="/levels" tabKey="/levels" tab="客户等级">{children}</TabPane> */}
+        </Tabs>
+      </Content>
     </Layout>
   )
 }

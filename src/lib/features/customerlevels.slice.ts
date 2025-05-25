@@ -1,7 +1,7 @@
 import { useRequest } from "@/hooks/useRequest";
-import { ActionReducerMapBuilder, PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { ActionReducerMapBuilder, PayloadAction, SerializedError, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-const { get, delete: deleteFn } = useRequest();
+const { get, put, delete: deleteFn } = useRequest();
 
 export type CustomerLevel = {
   id: number;
@@ -39,6 +39,21 @@ export const fetchCustomerLevels = createAsyncThunk<CustomerLevel[], void>(
   }
 );
 
+type UpdateCustomerLevelParams = {
+  id: number;
+  customerLevel: CustomerLevel;
+};
+
+export const updateCustomerLevel = createAsyncThunk<void, UpdateCustomerLevelParams>(
+  "customer-levels/update",
+  async ({id, customerLevel}: UpdateCustomerLevelParams): Promise<void> => {
+    const {error} = await put<{}, CustomerLevel[]>(`/customer-levels/${id}`, customerLevel);
+    if (error) {
+      throw error;
+    }
+  }
+);
+
 export const deleteCustomerLevel = createAsyncThunk<void, number>(
   "customer-levels/delete",
   async (id: number, thunkApi): Promise<void> => {
@@ -55,15 +70,32 @@ export const customersSlice = createSlice({
   reducers: {
   },
   extraReducers: (builder: ActionReducerMapBuilder<CustomerLevelsState>) => {
-    builder.addCase(fetchCustomerLevels.pending, (state: CustomerLevelsState) => {
-      state.loading = true;
+    [fetchCustomerLevels.pending, updateCustomerLevel.pending, deleteCustomerLevel.pending].forEach((asyncPendingAction) => {
+      builder.addCase(asyncPendingAction, (state: CustomerLevelsState) => {
+        state.loading = true;
+      });
+    });
+    [fetchCustomerLevels.rejected, updateCustomerLevel.rejected, deleteCustomerLevel.rejected].forEach((asyncRejectedAction) => {
+      builder.addCase(asyncRejectedAction, (state: CustomerLevelsState, action: PayloadAction<unknown, string, unknown, SerializedError>) => {
+        console.error("admins slice error: ", action.error);
+        state.loading = false;
+      });
     });
     builder.addCase(fetchCustomerLevels.fulfilled, (state: CustomerLevelsState, action: PayloadAction<CustomerLevel[]>) => {
       state.list = action.payload;
       state.loading = false;
     });
-    builder.addCase(fetchCustomerLevels.rejected, (state: CustomerLevelsState) => {
-      state.loading = true;
+    builder.addCase(updateCustomerLevel.fulfilled, (state: CustomerLevelsState, action: PayloadAction<void, string, {arg: UpdateCustomerLevelParams}>) => {
+      const {id, customerLevel}: UpdateCustomerLevelParams = action.meta.arg;
+      const targetIndex: number = state.list.findIndex((item: CustomerLevel) => item.id === id);
+      if (targetIndex > -1) { // targeted
+        state.list[targetIndex] = {
+          ...state.list[targetIndex],
+          ...customerLevel
+        };
+        state.list = [...state.list];
+      }
+      state.loading = false;
     });
   }
 });

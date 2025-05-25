@@ -2,7 +2,7 @@ import { useRequest } from "@/hooks/useRequest";
 import { ActionReducerMapBuilder, PayloadAction, SerializedError, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { CustomerLevel } from "./customerlevels.slice";
 
-const { get, patch, delete: deleteFn } = useRequest();
+const { get, put, delete: deleteFn } = useRequest();
 
 export type Customer = {
   id: number;
@@ -43,7 +43,7 @@ type UpdateCustomerParams = {
 export const updateCustomer = createAsyncThunk<void, UpdateCustomerParams>(
   "customers/update",
   async ({id, customer}: UpdateCustomerParams): Promise<void> => {
-    const {error} = await patch<{}, Customer[]>(`/customers/${id}`, customer);
+    const {error} = await put<{}, Customer[]>(`/customers/${id}`, customer);
     if (error) {
       throw error;
     }
@@ -82,18 +82,18 @@ export const customersSlice = createSlice({
       state.loading = false;
     });
     builder.addCase(updateCustomer.fulfilled, (state: CustomersState, action: PayloadAction<void, string, {arg: UpdateCustomerParams}>) => {
-          const {id, customer}: UpdateCustomerParams = action.meta.arg;
-          const targetIndex: number = state.list.findIndex((item: Customer) => item.id === id);
-          if (targetIndex > -1) { // targeted
-            state.list[targetIndex] = {
-              ...state.list[targetIndex],
-              ...customer
-            };
-            state.list = [...state.list];
-          }
-          state.loading = false;
-        });
-  }
+      const {id, customer}: UpdateCustomerParams = action.meta.arg;
+      const targetIndex: number = state.list.findIndex((item: Customer) => item.id === id);
+      if (targetIndex > -1) { // targeted
+        state.list[targetIndex] = {
+          ...state.list[targetIndex],
+          ...customer
+        };
+        state.list = [...state.list];
+      }
+      state.loading = false;
+    });
+}
 });
 
 export const {} = customersSlice.actions;

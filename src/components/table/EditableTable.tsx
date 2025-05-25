@@ -76,7 +76,7 @@ export default function EditableTable<RecordType extends RecordTypeWithId>({
       };
     }
     return column;
-  }), (record: RecordType, index?: number, col?: EditableColumnType<RecordType>) => {
+  }), (value: any, record: RecordType, index?: number, col?: EditableColumnType<RecordType>) => {
     const editing: boolean = record.id === editingId;
     if (form.current) {
       if (editing) {
@@ -84,7 +84,7 @@ export default function EditableTable<RecordType extends RecordTypeWithId>({
       }
     }
     return {
-      inputType: "text",
+      inputType: typeof value === "number" ? "number" : "text",
       editing: editing
     }
   }) : [], [editingId]);

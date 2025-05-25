@@ -42,7 +42,7 @@ export default function Admins() {
 
   const columns: ColumnsType<Admin> = useMemo(() => [
     {
-      title: "Username",
+      title: "管理员账号",
       dataIndex: "username",
       key: "username",
       editable: true,
@@ -50,13 +50,13 @@ export default function Admins() {
       rules: [
         {
           required: true,
-          message: "Please Input username!"
+          message: "请输入管理员账号!"
         }
       ],
       render: (username: string) => <Text>{username}</Text>
     },
     {
-      title: "Name",
+      title: "管理员姓名",
       dataIndex: "name",
       key: "name",
       editable: true,
@@ -64,13 +64,13 @@ export default function Admins() {
       rules: [
         {
           required: true,
-          message: "Please Input name!"
+          message: "请输入管理员姓名!"
         }
       ],
       render: (name: string) => <Text>{name}</Text>
     },
     {
-      title: "Action",
+      title: "操作",
       width: "25%",
       type: "operation",
       render: (_, record: Admin) => (
@@ -111,7 +111,7 @@ export default function Admins() {
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>
       <Flex vertical={false} justify="flex-end">
-        <Button type="primary" icon={<UserAddOutlined />}>添加管理员</Button>
+        <Button type="primary" icon={<UserAddOutlined />}>添加新管理员</Button>
       </Flex>
       <EditableTable<Admin>
         editingId={editingId}
