@@ -19,7 +19,7 @@ export default function AdminsPage() {
   const onAdd = useCallback(() => {
     dispatch(addRecord());
     setEditingId(-1);
-  }, [dispatch, addRecord, setEditingId]);
+  }, [dispatch, setEditingId]);
 
   const onEdit = useCallback((id: number) => {
     return () => {
@@ -32,19 +32,19 @@ export default function AdminsPage() {
       await dispatch(updateOrCreatAdmin({id: preRecord.id, admin: record})).unwrap();
       setEditingId(NaN);
     }
-  }, [dispatch, updateOrCreatAdmin, setEditingId]);
+  }, [dispatch, setEditingId]);
 
   const onEditCancel = useCallback(() => {
     dispatch(deleteAddingRecord());
     setEditingId(NaN);
-  }, [dispatch, deleteAddingRecord, setEditingId]);
+  }, [dispatch, setEditingId]);
 
   const onDelete = useCallback((id: number) => {
     return async () => {
       await dispatch(deleteAdmin(id)).unwrap();
       await dispatch(fetchAdmins()).unwrap();
     };
-  }, [dispatch, deleteAdmin, fetchAdmins]);
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(fetchAdmins()).unwrap();

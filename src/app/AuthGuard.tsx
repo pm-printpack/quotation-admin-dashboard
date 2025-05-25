@@ -54,7 +54,7 @@ export default function AuthGuard({ children }: PropsWithChildren) {
       // OK to render the children
       setAllowed(true)
     }
-  }, [isAuthenticated, pathname, router]);
+  }, [isAuthenticated, pathname, router, dispatch]);
 
   // prevent flicker
   if (!allowed) {

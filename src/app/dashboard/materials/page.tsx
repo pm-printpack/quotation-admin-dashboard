@@ -11,7 +11,7 @@ export default function MaterialsPage() {
     if (/\/dashboard\/materials\/?$/.test(pathname)) {
       router.replace("/dashboard/materials/list");
     }
-  }, []);
+  }, [pathname, router]);
 
   return undefined;
 }

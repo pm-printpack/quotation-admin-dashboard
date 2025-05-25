@@ -19,7 +19,7 @@ export default function MaterialListPage() {
   const onAdd = useCallback(() => {
     dispatch(addRecord());
     setEditingId(-1);
-  }, [dispatch, addRecord, setEditingId]);
+  }, [dispatch, setEditingId]);
 
   const onEdit = useCallback((id: number) => {
     return () => {
@@ -32,23 +32,23 @@ export default function MaterialListPage() {
       await dispatch(updateOrCreatMaterial({id: preRecord.id, material: record})).unwrap();
       setEditingId(NaN);
     }
-  }, [dispatch, updateOrCreatMaterial, setEditingId]);
+  }, [dispatch, setEditingId]);
 
   const onEditCancel = useCallback(() => {
     dispatch(deleteAddingRecord());
     setEditingId(NaN);
-  }, [dispatch, deleteAddingRecord, setEditingId]);
+  }, [dispatch, setEditingId]);
 
   const onDelete = useCallback((id: number) => {
     return async () => {
       await dispatch(deleteMaterial(id)).unwrap();
       await dispatch(fetchMaterials()).unwrap();
     };
-  }, [dispatch, deleteMaterial, fetchMaterials]);
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(fetchMaterials()).unwrap();
-  }, []);
+  }, [dispatch]);
 
   const columns: EditableColumnsType<Material> = useMemo(() => [
     {
@@ -180,7 +180,7 @@ export default function MaterialListPage() {
         </Space>
       ),
     }
-  ], [editingId]);
+  ], [editingId, onEdit, onDelete]);
 
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>

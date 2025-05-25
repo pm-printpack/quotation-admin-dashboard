@@ -5,6 +5,7 @@ import FormItem from "antd/es/form/FormItem";
 import Password from "antd/es/input/Password";
 import TextArea from "antd/es/input/TextArea";
 import type { ColumnGroupType, ColumnsType, ColumnType } from "antd/es/table";
+import { ColumnTitle } from "antd/es/table/interface";
 import { ReactNode, useMemo, type PropsWithChildren } from "react";
 
 type ColumnCategory = "operation" | EditableCellInputType;
@@ -30,7 +31,7 @@ export interface EditableBaseCellProps {
 
 export interface EditableCellProps<RecordType = AnyObject> extends EditableBaseCellProps {
   dataIndex: string;
-  title: any;
+  title: ColumnTitle<RecordType>;
   record: RecordType;
   index: number;
   rules?: Rule[];
@@ -47,7 +48,6 @@ export default function EditableCell<RecordType extends AnyObject>({
   children,
   ...restProps
 }: PropsWithChildren<EditableCellProps<RecordType>>) {
-  // const inputNode = inputType === "number" ? <InputNumber min={0} /> : <Input />;
   const inputNode: ReactNode = useMemo(() => {
     switch (inputType) {
       case "number":

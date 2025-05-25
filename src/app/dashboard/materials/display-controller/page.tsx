@@ -14,7 +14,7 @@ export default function MaterialDisplayControllerPage() {
 
   useEffect(() => {
     dispatch(fetchMaterials()).unwrap();
-  }, []);
+  }, [dispatch]);
 
   const onChange = useCallback((dataIndex: string, record: Material, index: number) => {
     return (e: CheckboxChangeEvent) => {
@@ -25,7 +25,7 @@ export default function MaterialDisplayControllerPage() {
         }
       }));
     };
-  }, []);
+  }, [dispatch]);
 
   const columns: ColumnsType<Material> = useMemo(() => [
     {
@@ -162,7 +162,7 @@ export default function MaterialDisplayControllerPage() {
       align: "center",
       render: (value: boolean, record: Material, index: number) => <Checkbox checked={value} onChange={onChange("gravureInner", record, index)}></Checkbox>
     }
-  ], []);
+  ], [onChange]);
 
   return (
     <Table<Material>

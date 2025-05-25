@@ -28,7 +28,7 @@ export default function MaterialsLayout({children}: PropsWithChildren) {
 
   const onChange = useCallback((activeKey: string) => {
     router.push(`/dashboard/materials${activeKey}`);
-  }, []);
+  }, [router]);
 
   return (
     <Layout className={styles.layoutContainer}>

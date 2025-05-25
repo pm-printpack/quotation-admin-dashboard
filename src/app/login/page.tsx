@@ -18,7 +18,7 @@ export default function Login() {
 
   const onFinish = useCallback((values: FormValue) => {
     dispath(login(values)).unwrap();
-  }, []);
+  }, [dispath]);
 
   return (
     <Flex className={ styles.container } justify="center" align="center">

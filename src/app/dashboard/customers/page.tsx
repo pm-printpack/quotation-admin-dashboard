@@ -11,7 +11,7 @@ export default function CustomersPage() {
     if (/\/dashboard\/customers\/?$/.test(pathname)) {
       router.replace("/dashboard/customers/list");
     }
-  }, []);
+  }, [pathname, router]);
 
   return undefined;
 }

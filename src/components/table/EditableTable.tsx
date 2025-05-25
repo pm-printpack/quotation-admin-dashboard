@@ -40,7 +40,7 @@ export default function EditableTable<RecordType extends RecordTypeWithId>({
         onEditCancel(preRecord, index);
       }
     };
-  }, []);
+  }, [onEditCancel]);
 
   columns = useMemo(() => columns ? wrapColumns(columns.map((column: EditableColumnType<RecordType>) => {
     if (column.type === "credential") {

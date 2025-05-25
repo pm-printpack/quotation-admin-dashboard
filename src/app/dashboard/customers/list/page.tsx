@@ -20,7 +20,7 @@ export default function CustomerListPage() {
   const onAdd = useCallback(() => {
     dispatch(addRecord());
     setEditingId(-1);
-  }, [dispatch, addRecord, setEditingId]);
+  }, [dispatch, setEditingId]);
 
   const onEdit = useCallback((id: number) => {
     return () => {
@@ -33,19 +33,19 @@ export default function CustomerListPage() {
       await dispatch(updateOrCreatCustomer({id: preRecord.id, customer: record})).unwrap();
       setEditingId(NaN);
     }
-  }, [dispatch, updateOrCreatCustomer, setEditingId]);
+  }, [dispatch, setEditingId]);
 
   const onEditCancel = useCallback(() => {
     dispatch(deleteAddingRecord());
     setEditingId(NaN);
-  }, [dispatch, deleteAddingRecord, setEditingId]);
+  }, [dispatch, setEditingId]);
 
   const onDelete = useCallback((id: number) => {
     return async () => {
       await dispatch(deleteCustomer(id)).unwrap();
       await dispatch(fetchCustomers()).unwrap();
     };
-  }, [dispatch, deleteCustomer, fetchCustomers]);
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(fetchCustomers()).unwrap();

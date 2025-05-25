@@ -19,7 +19,7 @@ export default function CustomerTiersPage() {
   const onAdd = useCallback(() => {
     dispatch(addRecord());
     setEditingId(-1);
-  }, [dispatch, addRecord, setEditingId]);
+  }, [dispatch, setEditingId]);
   
   const onEdit = useCallback((id: number) => {
     return () => {
@@ -32,19 +32,19 @@ export default function CustomerTiersPage() {
       await dispatch(updateOrCreatCustomerTier({id: preRecord.id, customerTier: record})).unwrap();
       setEditingId(NaN);
     }
-  }, [dispatch, updateOrCreatCustomerTier, setEditingId]);
+  }, [dispatch, setEditingId]);
 
   const onEditCancel = useCallback(() => {
     dispatch(deleteAddingRecord());
     setEditingId(NaN);
-  }, [dispatch, deleteAddingRecord, setEditingId]);
+  }, [dispatch, setEditingId]);
 
   const onDelete = useCallback((id: number) => {
     return async () => {
       await dispatch(deleteCustomerTier(id)).unwrap();
       await dispatch(fetchCustomerTiers()).unwrap();
     };
-  }, [dispatch, deleteCustomerTier, fetchCustomerTiers]);
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(fetchCustomerTiers()).unwrap();

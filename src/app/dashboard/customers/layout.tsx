@@ -28,7 +28,7 @@ export default function CustomersLayout({children}: PropsWithChildren) {
 
   const onChange = useCallback((activeKey: string) => {
     router.push(`/dashboard/customers${activeKey}`);
-  }, []);
+  }, [router]);
 
   return (
     <Layout className={styles.layoutContainer}>
