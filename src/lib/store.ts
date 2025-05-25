@@ -1,12 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./features/auth.slice";
 import adminsReducer from "./features/admins.slice";
+import customersReducer from "./features/customers.slice";
+import CustomerLevelsReducer from "./features/customerlevels.slice";
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       auth: authReducer,
-      admins: adminsReducer
+      admins: adminsReducer,
+      customers: customersReducer,
+      customerLevels: CustomerLevelsReducer
     }
   })
 }
