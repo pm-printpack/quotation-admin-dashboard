@@ -43,7 +43,7 @@ type UpdateCustomerParams = {
 export const updateCustomer = createAsyncThunk<void, UpdateCustomerParams>(
   "customers/update",
   async ({id, customer}: UpdateCustomerParams): Promise<void> => {
-    const {error} = await put<{}, Customer[]>(`/customers/${id}`, customer);
+    const {error} = await put<Partial<Customer>>(`/customers/${id}`, customer);
     if (error) {
       throw error;
     }

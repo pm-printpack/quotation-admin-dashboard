@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Text from "antd/es/typography/Text";
 import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
 import DoubleCheckedButton from "@/components/DoubleCheckedButton";
-import { CustomerTier, deleteCustomerTier, fetchCustomerTiers, updateCustomerTier } from "@/lib/features/customer-tiers.slice";
+import { addRecord, CustomerTier, deleteCustomerTier, fetchCustomerTiers, updateOrCreatCustomerTier } from "@/lib/features/customer-tiers.slice";
 import EditableTable from "@/components/table/EditableTable";
 import { EditableColumnsType } from "@/components/table/EditableCell";
 
@@ -15,6 +15,11 @@ export default function CustomerTierPage() {
   const customerTiers: CustomerTier[] = useAppSelector((state: RootState) => state.customerTiers.list);
   const loading: boolean = useAppSelector((state: RootState) => state.customerTiers.loading);
   const [editingId, setEditingId] = useState<number>(NaN);
+
+  const onAdd = useCallback(() => {
+    dispatch(addRecord());
+    setEditingId(-1);
+  }, [dispatch, addRecord, setEditingId]);
   
   const onEdit = useCallback((id: number) => {
     return () => {
@@ -24,10 +29,10 @@ export default function CustomerTierPage() {
 
   const onEditSubmit = useCallback(async (record: CustomerTier | undefined | null, preRecord: CustomerTier) => {
     if (record) {
-      await dispatch(updateCustomerTier({id: preRecord.id, customerTier: record})).unwrap();
+      await dispatch(updateOrCreatCustomerTier({id: preRecord.id, customerTier: record})).unwrap();
       setEditingId(NaN);
     }
-  }, [dispatch, updateCustomerTier, setEditingId]);
+  }, [dispatch, updateOrCreatCustomerTier, setEditingId]);
 
   const onEditCancel = useCallback(() => {
     setEditingId(NaN);
@@ -179,7 +184,8 @@ export default function CustomerTierPage() {
               shape: "circle",
               icon: <DeleteOutlined />,
               size: "middle",
-              danger: true
+              danger: true,
+              disabled: !!editingId
             }}
             tooltipProps={{
               title: `删除等级（${record.name}）`
@@ -189,18 +195,19 @@ export default function CustomerTierPage() {
               description: `你确定想删除等级（${record.name}）吗？`,
               onConfirm: onDelete(record.id),
               okText: "确定",
-              cancelText: "再想想"
+              cancelText: "再想想",
+              disabled: !!editingId
             }}
           />
         </Space>
       ),
     }
-  ], []);
+  ], [editingId]);
 
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>
       <Flex vertical={false} justify="flex-end">
-        <Button type="primary" icon={<UserAddOutlined />}>添加新等级</Button>
+        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>添加新等级</Button>
       </Flex>
       <EditableTable<CustomerTier>
         editingId={editingId}

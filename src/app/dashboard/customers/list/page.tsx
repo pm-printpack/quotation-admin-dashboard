@@ -141,7 +141,8 @@ export default function CustomerListPage() {
               shape: "circle",
               icon: <DeleteOutlined />,
               size: "middle",
-              danger: true
+              danger: true,
+              disabled: !!editingId
             }}
             tooltipProps={{
               title: `删除客户（${record.name}）`
@@ -151,13 +152,14 @@ export default function CustomerListPage() {
               description: `你确定想删除客户（${record.name}）吗？`,
               onConfirm: onDelete(record.id),
               okText: "确定",
-              cancelText: "再想想"
+              cancelText: "再想想",
+              disabled: !!editingId
             }}
           />
         </Space>
       ),
     }
-  ], []);
+  ], [editingId]);
 
   useEffect(() => {
     dispatch(fetchCustomers()).unwrap();

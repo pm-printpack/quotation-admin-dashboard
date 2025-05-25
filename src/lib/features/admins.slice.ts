@@ -40,7 +40,7 @@ type UpdateAdminParams = {
 export const updateAdmin = createAsyncThunk<void, UpdateAdminParams>(
   "admins/update",
   async ({id, admin}: UpdateAdminParams): Promise<void> => {
-    const {error} = await put<{}, Admin[]>(`/admins/${id}`, admin);
+    const {error} = await put<Admin>(`/admins/${id}`, admin);
     if (error) {
       throw error;
     }

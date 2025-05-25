@@ -1,10 +1,9 @@
 import { useRequest } from "@/hooks/useRequest";
 import { ActionReducerMapBuilder, PayloadAction, SerializedError, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-const { get, put, delete: deleteFn } = useRequest();
+const { get, post, put, delete: deleteFn } = useRequest();
 
-export type CustomerTier = {
-  id: number;
+export type NewCustomerTier = {
   name: string;
   digitalPrintingProfitMargin: number;
   offsetPrintingProfitMargin: number;
@@ -13,6 +12,10 @@ export type CustomerTier = {
   preferentialProfitMargin1: number;
   minimumDiscountAmount2: number;
   preferentialProfitMargin2: number;
+}
+
+export interface CustomerTier extends NewCustomerTier {
+  id: number;
   createdAt: Date;
   isArchived: boolean;
   archivedAt?: Date;
@@ -44,12 +47,21 @@ type UpdateCustomerTierParams = {
   customerTier: CustomerTier;
 };
 
-export const updateCustomerTier = createAsyncThunk<void, UpdateCustomerTierParams>(
+export const updateOrCreatCustomerTier = createAsyncThunk<void, UpdateCustomerTierParams>(
   "customer-tiers/update",
-  async ({id, customerTier}: UpdateCustomerTierParams): Promise<void> => {
-    const {error} = await put<{}, CustomerTier[]>(`/customer-tiers/${id}`, customerTier);
-    if (error) {
-      throw error;
+  async ({id, customerTier}: UpdateCustomerTierParams, {dispatch}): Promise<void> => {
+    if (id === -1) { // create a new one
+      const {id, ...newCustomerTier} = customerTier
+      const {error} = await post<NewCustomerTier>("/customer-tiers", newCustomerTier);
+      if (error) {
+        throw error;
+      }
+      dispatch(fetchCustomerTiers());
+    } else {
+      const {error} = await put<Partial<CustomerTier>>(`/customer-tiers/${id}`, customerTier);
+      if (error) {
+        throw error;
+      }
     }
   }
 );
@@ -68,14 +80,29 @@ export const customersSlice = createSlice({
   name: "customerTiers",
   initialState: initialState,
   reducers: {
+    addRecord: (state: CustomerTiersState) => {
+      state.list = [
+        {
+          id: -1,
+          digitalPrintingProfitMargin: 0,
+          offsetPrintingProfitMargin: 0,
+          gravurePrintingProfitMargin: 0,
+          minimumDiscountAmount1: 0,
+          preferentialProfitMargin1: 0,
+          minimumDiscountAmount2: 0,
+          preferentialProfitMargin2: 0
+        } as CustomerTier,
+        ...state.list
+      ];
+    }
   },
   extraReducers: (builder: ActionReducerMapBuilder<CustomerTiersState>) => {
-    [fetchCustomerTiers.pending, updateCustomerTier.pending, deleteCustomerTier.pending].forEach((asyncPendingAction) => {
+    [fetchCustomerTiers.pending, updateOrCreatCustomerTier.pending, deleteCustomerTier.pending].forEach((asyncPendingAction) => {
       builder.addCase(asyncPendingAction, (state: CustomerTiersState) => {
         state.loading = true;
       });
     });
-    [fetchCustomerTiers.rejected, updateCustomerTier.rejected, deleteCustomerTier.rejected].forEach((asyncRejectedAction) => {
+    [fetchCustomerTiers.rejected, updateOrCreatCustomerTier.rejected, deleteCustomerTier.rejected].forEach((asyncRejectedAction) => {
       builder.addCase(asyncRejectedAction, (state: CustomerTiersState, action: PayloadAction<unknown, string, unknown, SerializedError>) => {
         console.error("customer tiers slice error: ", action.error);
         state.loading = false;
@@ -85,21 +112,25 @@ export const customersSlice = createSlice({
       state.list = action.payload;
       state.loading = false;
     });
-    builder.addCase(updateCustomerTier.fulfilled, (state: CustomerTiersState, action: PayloadAction<void, string, {arg: UpdateCustomerTierParams}>) => {
+    builder.addCase(updateOrCreatCustomerTier.fulfilled, (state: CustomerTiersState, action: PayloadAction<void, string, {arg: UpdateCustomerTierParams}>) => {
       const {id, customerTier}: UpdateCustomerTierParams = action.meta.arg;
-      const targetIndex: number = state.list.findIndex((item: CustomerTier) => item.id === id);
-      if (targetIndex > -1) { // targeted
-        state.list[targetIndex] = {
-          ...state.list[targetIndex],
-          ...customerTier
-        };
-        state.list = [...state.list];
+      if (id !== -1) {
+        const targetIndex: number = state.list.findIndex((item: CustomerTier) => item.id === id);
+        if (targetIndex > -1) { // targeted
+          state.list[targetIndex] = {
+            ...state.list[targetIndex],
+            ...customerTier
+          };
+          state.list = [...state.list];
+        }
       }
       state.loading = false;
     });
   }
 });
 
-export const {} = customersSlice.actions;
+export const {
+  addRecord
+} = customersSlice.actions;
 
 export default customersSlice.reducer;
