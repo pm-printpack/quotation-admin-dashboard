@@ -4,7 +4,6 @@ import { Content, Header } from "antd/es/layout/layout";
 import Title from "antd/es/typography/Title";
 import { PropsWithChildren, useCallback, useMemo } from "react";
 import styles from "./layout.module.css";
-import TabPane from "antd/es/tabs/TabPane";
 import { usePathname, useRouter } from "next/navigation";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
@@ -12,12 +11,6 @@ export default function CustomersLayout({children}: PropsWithChildren) {
   const { token: { colorBgContainer } } = theme.useToken();
   const pathname: string = usePathname();
   const router: AppRouterInstance = useRouter();
-
-  if (/\/dashboard\/customers\/?$/.test(pathname)) {
-    router.replace("/dashboard/customers/list");
-    return undefined;
-  }
-
   const defaultActiveKey: string = useMemo(() => `/${(pathname.match(/^\/dashboard\/customers\/([a-zA-Z0-9\-_]*)/) || [])[1] || "list"}`, [pathname]);
 
   const items: TabsProps["items"] = [
