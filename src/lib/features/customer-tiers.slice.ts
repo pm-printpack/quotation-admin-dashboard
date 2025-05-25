@@ -69,11 +69,9 @@ export const updateOrCreatCustomerTier = createAsyncThunk<void, UpdateOrCreatCus
 export const deleteCustomerTier = createAsyncThunk<void, number>(
   "customer-tiers/delete",
   async (id: number, thunkApi): Promise<void> => {
-    if (id !== -1) {
-      const {error} = await deleteFn(`/customer-tiers/${id}`);
-      if (error) {
-        throw error;
-      }
+    const {error} = await deleteFn(`/customer-tiers/${id}`);
+    if (error) {
+      throw error;
     }
   }
 );

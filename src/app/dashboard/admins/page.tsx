@@ -51,8 +51,9 @@ export default function AdminsPage() {
       title: "管理员账号",
       dataIndex: "username",
       key: "username",
-      editable: true,
       width: "50%",
+      type: "credential",
+      editable: true,
       rules: [
         {
           required: true,

@@ -82,8 +82,14 @@ export const customersSlice = createSlice({
       state.list = [
         {
           id: -1,
+          username: "",
+          password: "",
+          name: "",
+          email: "",
+          orgName: "",
+          phone: "",
           tier: {}
-        } as Customer,
+        } as Customer & NewCustomer,
         ...state.list
       ];
     },

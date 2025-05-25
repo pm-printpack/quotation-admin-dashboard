@@ -58,7 +58,6 @@ export default function EditableCell<RecordType extends AnyObject>({
           <>
             <FormItem
               name={dataIndex}
-              initialValue={record[dataIndex as string]}
               rules={rules}
             >
               <Input placeholder="新账号" />
@@ -79,7 +78,6 @@ export default function EditableCell<RecordType extends AnyObject>({
           :
           <FormItem
             name={dataIndex}
-            initialValue={record[dataIndex as string]}
             style={{ margin: 0 }}
             rules={rules}
           >

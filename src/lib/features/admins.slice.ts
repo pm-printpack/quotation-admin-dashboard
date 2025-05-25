@@ -8,8 +8,6 @@ export type NewAdmin = {
   username: string;
   password: string;
   name: string;
-  editing?: boolean;
-  adding?: boolean;
 };
 
 export interface Admin extends Omit<NewAdmin, "password"> {
@@ -44,13 +42,14 @@ type UpdateOrCreatAdminParams = {
 
 export const updateOrCreatAdmin = createAsyncThunk<void, UpdateOrCreatAdminParams>(
   "admins/updateOrCreat",
-  async ({id, admin}: UpdateOrCreatAdminParams): Promise<void> => {
+  async ({id, admin}: UpdateOrCreatAdminParams, {dispatch}): Promise<void> => {
     if (id === -1) {
       const {id, ...newAdmin} = admin as NewAdmin;
       const {error} = await post<Omit<NewAdmin, "id">>("/admins", newAdmin);
       if (error) {
         throw error;
       }
+      dispatch(fetchAdmins());
     } else {
       const {error} = await put<Partial<Admin>>(`/admins/${id}`, admin);
       if (error) {
@@ -63,12 +62,10 @@ export const updateOrCreatAdmin = createAsyncThunk<void, UpdateOrCreatAdminParam
 export const deleteAdmin = createAsyncThunk<void, number>(
   "admins/delete",
   async (id: number, thunkApi): Promise<void> => {
-    if (id !== -1) {
-      const {error} = await deleteFn(`/admins/${id}`);
-      if (error) {
-        throw error;
-      } 
-    }
+    const {error} = await deleteFn(`/admins/${id}`);
+    if (error) {
+      throw error;
+    } 
   }
 );
 
@@ -79,8 +76,11 @@ export const adminsSlice = createSlice({
     addRecord: (state: AdminsState) => {
       state.list = [
         {
-          id: -1
-        } as Admin,
+          id: -1,
+          username: "",
+          password: "",
+          name: ""
+        } as Admin & NewAdmin,
         ...state.list
       ];
     },
