@@ -48,6 +48,10 @@ export default function CustomerListPage() {
     };
   }, [dispatch, deleteCustomer, fetchCustomers]);
 
+  useEffect(() => {
+    dispatch(fetchCustomers()).unwrap();
+  }, []);
+
   const columns: EditableColumnsType<Customer> = useMemo(() => [
     {
       title: "客户账号",
@@ -168,10 +172,6 @@ export default function CustomerListPage() {
       ),
     }
   ], [editingId]);
-
-  useEffect(() => {
-    dispatch(fetchCustomers()).unwrap();
-  }, []);
 
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>

@@ -46,6 +46,10 @@ export default function AdminsPage() {
     };
   }, [dispatch, deleteAdmin, fetchAdmins]);
 
+  useEffect(() => {
+    dispatch(fetchAdmins()).unwrap();
+  }, []);
+
   const columns: ColumnsType<Admin> = useMemo(() => [
     {
       title: "管理员账号",
@@ -110,10 +114,6 @@ export default function AdminsPage() {
       )
     }
   ], [editingId]);
-
-  useEffect(() => {
-    dispatch(fetchAdmins()).unwrap();
-  }, []);
 
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>

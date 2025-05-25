@@ -1,4 +1,3 @@
-"use client";
 import { Button, Form, FormInstance, Space, Table, TableProps } from "antd";
 import { AnyObject } from "antd/es/_util/type";
 import { Reference } from "rc-table";
@@ -84,7 +83,6 @@ export default function EditableTable<RecordType extends RecordTypeWithId>({
   }), (value: any, record: RecordType, index?: number, col?: EditableColumnType<RecordType>) => {
     const editing: boolean = record.id === editingId;
     if (editing) {
-      console.log("record: ", record);
       form.current?.setFieldsValue(JSON.parse(JSON.stringify(record)));
     }
     return {
