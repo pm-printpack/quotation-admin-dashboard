@@ -29,6 +29,10 @@ export default function Admins() {
     }
   }, [dispatch, updateAdmin, setEditingId]);
 
+  const onEditCancel = useCallback(() => {
+    setEditingId(NaN);
+  }, [setEditingId]);
+
   const onDelete = useCallback((id: number) => {
     return async () => {
       await dispatch(deleteAdmin(id)).unwrap();
@@ -112,6 +116,7 @@ export default function Admins() {
       <EditableTable<Admin>
         editingId={editingId}
         onEditSubmit={onEditSubmit}
+        onEditCancel={onEditCancel}
         columns={columns}
         dataSource={admins}
         loading={loading}

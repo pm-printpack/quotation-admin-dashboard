@@ -13,9 +13,17 @@ interface RecordTypeWithId extends AnyObject {
 export interface EditableTableProps<RecordType = AnyObject> extends PropsWithChildren<TableProps<RecordType>>, RefAttributes<Reference> {
   editingId?: number | string;
   onEditSubmit?: (record: RecordType | undefined | null, preRecord: RecordType, index: number) => void;
+  onEditCancel?: (preRecord: RecordType, index: number) => void;
 }
 
-export default function EditableTable<RecordType extends RecordTypeWithId>({ editingId, columns, onEditSubmit, children, ...props }: EditableTableProps<RecordType>) {
+export default function EditableTable<RecordType extends RecordTypeWithId>({
+  editingId,
+  columns,
+  onEditSubmit,
+  onEditCancel,
+  children,
+  ...props
+}: EditableTableProps<RecordType>) {
   const form: Ref<FormInstance> = useRef<FormInstance>(null);
 
   const onSubmit = useCallback((preRecord: RecordType, index: number) => {
@@ -25,6 +33,14 @@ export default function EditableTable<RecordType extends RecordTypeWithId>({ edi
       }
     };
   }, [onEditSubmit]);
+
+  const onCancel = useCallback((preRecord: RecordType, index: number) => {
+    return () => {
+      if (onEditCancel) {
+        onEditCancel(preRecord, index);
+      }
+    };
+  }, []);
 
   columns = useMemo(() => columns ? wrapColumns(columns.map((column: EditableColumnType<RecordType>) => {
     if (column.type === "operation") {
@@ -47,7 +63,7 @@ export default function EditableTable<RecordType extends RecordTypeWithId>({ edi
                   }}
                   popconfirmProps={{
                     title: "Sure to cancel?",
-                    onConfirm: () => {}
+                    onConfirm: onCancel(record, index)
                   }}
                 />
               </Space>
@@ -65,8 +81,6 @@ export default function EditableTable<RecordType extends RecordTypeWithId>({ edi
     if (form.current) {
       if (editing) {
         form.current.setFieldsValue(JSON.parse(JSON.stringify(record)));
-      } else {
-        form.current.setFieldsValue({});
       }
     }
     return {

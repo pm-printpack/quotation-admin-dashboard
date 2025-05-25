@@ -63,12 +63,12 @@ export const adminsSlice = createSlice({
   reducers: {
   },
   extraReducers: (builder: ActionReducerMapBuilder<AdminsState>) => {
-    [fetchAdmins.pending, updateAdmin.pending].forEach((asyncPendingAction) => {
+    [fetchAdmins.pending, updateAdmin.pending, deleteAdmin.pending].forEach((asyncPendingAction) => {
       builder.addCase(asyncPendingAction, (state: AdminsState) => {
         state.loading = true;
       });
     });
-    [fetchAdmins.rejected, updateAdmin.rejected].forEach((asyncRejectedAction) => {
+    [fetchAdmins.rejected, updateAdmin.rejected, deleteAdmin.rejected].forEach((asyncRejectedAction) => {
       builder.addCase(asyncRejectedAction, (state: AdminsState, action: PayloadAction<unknown, string, unknown, SerializedError>) => {
         console.error("admins slice error: ", action.error);
         state.loading = false;
