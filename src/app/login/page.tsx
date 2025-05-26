@@ -8,7 +8,7 @@ import { useCallback } from "react";
 import { useAppDispatch } from "@/lib/hooks";
 import { login } from "@/lib/features/auth.slice";
 
-type FormValue = {
+type FormValues = {
   username: string;
   password: string;
 };
@@ -16,7 +16,7 @@ type FormValue = {
 export default function Login() {
   const dispath = useAppDispatch();
 
-  const onFinish = useCallback((values: FormValue) => {
+  const onFinish = useCallback((values: FormValues) => {
     dispath(login(values)).unwrap();
   }, [dispath]);
 
