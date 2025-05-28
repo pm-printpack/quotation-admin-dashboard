@@ -49,11 +49,13 @@ export default function MaterialDisplayControllerPage() {
       return columnSegments;
     }
     const materialDisplays: MaterialDisplay[] = materials[0].displays;
+    const widthRatio: number = Math.round(84 / materialDisplays.length);
     for (let i: number = 0; i < materialDisplays.length; ++i) {
       const materialDisplay: MaterialDisplay = materialDisplays[i];
       columnSegments.push({
         title: <span>{materialDisplay.categoryPrintingType.chineseName}<br/>{materialDisplay.categoryOption.chineseName}{materialDisplay.index === 0 ? "" : (materialDisplay.index + 1)}</span>,
         align: "center",
+        width: `${widthRatio}%`,
         render: (_, record: Material, index: number) => <Checkbox checked={materialDisplay.isActive} onChange={onChange(materialDisplay.id, record, index)}></Checkbox>
       });
     }
