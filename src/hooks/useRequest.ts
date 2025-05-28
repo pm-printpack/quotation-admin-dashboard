@@ -1,4 +1,5 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { message } from "antd";
+import axios, { AxiosRequestConfig, AxiosResponse, isAxiosError } from "axios";
 import queryString from "query-string";
 
 type ResponseBody<ResponseDataType = Record<string, any>> = {
@@ -36,8 +37,21 @@ async function request<RequestDataType = any, ResponseDataType = Record<string, 
       data: responseData.data
     };
   } catch (error) {
+    let newError: Error;
+    if (isAxiosError(error)) {
+      if (error.response) {
+        newError = new Error(error.response.data.message || "Service error");
+      } else if (error.request) {
+        newError = new Error(error.request);
+      } else {
+        newError = new Error(error.message);
+      }
+    } else {
+      newError = new Error((error as Error).message || "Client error");
+    }
+    message.error(newError.message);
     return {
-      error: error as Error
+      error: newError
     };
   }
 }

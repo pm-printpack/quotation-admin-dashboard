@@ -27,33 +27,27 @@ type NewMaterial = {
   unitPrice: number;
 
   remarks: string;
-
-  /*========== Display Properties ==========*/
-  /*===== Digital printing =====*/
-  digitalPrinting: boolean;
-  digitalLayer1: boolean;
-  digitalLayer2: boolean;
-  digitalLayer3: boolean;
-  digitalInner: boolean;
-
-  /*===== Offset printing =====*/
-  offsetPrinting: boolean;
-  offsetLayer1: boolean;
-  offsetLayer2: boolean;
-  offsetLayer3: boolean;
-  offsetInner: boolean;
-
-  /*===== Gravure printing =====*/
-  gravurePrinting: boolean;
-  gravureLayer1: boolean;
-  gravureLayer2: boolean;
-  gravureLayer3: boolean;
-  gravureInner: boolean;
 };
 
 export interface Material extends NewMaterial {
+  displays: MaterialDisplay[];
   createdAt: Date;
 };
+
+type Category = {
+  id: number;
+  name: string;
+  chineseName: string;
+};
+
+export interface MaterialDisplay {
+  id: number;
+  categoryPrintingType: Category;
+  categoryOption: Category;
+  material: Material
+  isActive: boolean;
+  index: number;
+}
 
 interface MaterialsState {
   list: Material[];
@@ -100,6 +94,22 @@ export const updateOrCreatMaterial = createAsyncThunk<void, UpdateOrCreatMateria
   }
 );
 
+type UpdateMaterialDisplayParams = {
+  id: number;
+  materialId: number;
+  materialDisplay: Partial<MaterialDisplay>;
+};
+
+export const updateMaterialDisplay = createAsyncThunk<void, UpdateMaterialDisplayParams>(
+  "materials/updateMaterialDisplay",
+  async ({id, materialDisplay}: UpdateMaterialDisplayParams): Promise<void> => {
+    const {error} = await patch<Partial<Material>>(`/materials/display/${id}`, materialDisplay);
+    if (error) {
+      throw error;
+    }
+  }
+);
+
 export const deleteMaterial = createAsyncThunk<void, number>(
   "materials/delete",
   async (id: number, thunkApi): Promise<void> => {
@@ -123,22 +133,7 @@ export const materialsSlice = createSlice({
           density: 0,
           thickness: 0,
           unitPrice: 0,
-          remarks: "",
-          digitalPrinting: false,
-          digitalLayer1: false,
-          digitalLayer2: false,
-          digitalLayer3: false,
-          digitalInner: false,
-          offsetPrinting: false,
-          offsetLayer1: false,
-          offsetLayer2: false,
-          offsetLayer3: false,
-          offsetInner: false,
-          gravurePrinting: false,
-          gravureLayer1: false,
-          gravureLayer2: false,
-          gravureLayer3: false,
-          gravureInner: false,
+          remarks: ""
         } as Material,
         ...state.list
       ];
@@ -152,13 +147,11 @@ export const materialsSlice = createSlice({
     }
   },
   extraReducers: (builder: ActionReducerMapBuilder<MaterialsState>) => {
-    [fetchMaterials.pending, updateOrCreatMaterial.pending, deleteMaterial.pending].forEach((asyncPendingAction) => {
-      builder.addCase(asyncPendingAction, (state: MaterialsState) => {
+    [fetchMaterials, updateOrCreatMaterial, updateMaterialDisplay, deleteMaterial].forEach((asyncThunk) => {
+      builder.addCase(asyncThunk.pending, (state: MaterialsState) => {
         state.loading = true;
       });
-    });
-    [fetchMaterials.rejected, updateOrCreatMaterial.rejected, deleteMaterial.rejected].forEach((asyncRejectedAction) => {
-      builder.addCase(asyncRejectedAction, (state: MaterialsState, action: PayloadAction<unknown, string, unknown, SerializedError>) => {
+      builder.addCase(asyncThunk.rejected, (state: MaterialsState, action: PayloadAction<unknown, string, unknown, SerializedError>) => {
         console.error("materials slice error: ", action.error);
         state.loading = false;
       });
@@ -176,6 +169,26 @@ export const materialsSlice = createSlice({
           ...material
         };
         state.list = [...state.list];
+      }
+      state.loading = false;
+    });
+    builder.addCase(updateMaterialDisplay.fulfilled, (state: MaterialsState, action: PayloadAction<void, string, {arg: UpdateMaterialDisplayParams}>) => {
+      const {id, materialId, materialDisplay}: UpdateMaterialDisplayParams = action.meta.arg;
+      const targetIndex: number = state.list.findIndex((item: Material) => item.id === materialId);
+      if (targetIndex > -1) { // targeted
+        const materialDisplays: MaterialDisplay[] = state.list[targetIndex].displays;
+        const targetMaterialDisplayIndex: number = materialDisplays.findIndex((item: MaterialDisplay) => item.id === id);
+        if (targetMaterialDisplayIndex > -1) {
+          materialDisplays[targetMaterialDisplayIndex] = {
+            ...materialDisplays[targetMaterialDisplayIndex],
+            ...materialDisplay
+          };
+          state.list[targetIndex] = {
+            ...state.list[targetIndex],
+            displays: [...materialDisplays]
+          };
+          state.list = [...state.list];
+        }
       }
       state.loading = false;
     });
