@@ -56,7 +56,7 @@ export default function MaterialDisplayControllerPage() {
         title: <span>{materialDisplay.categoryPrintingType.chineseName}<br/>{materialDisplay.categoryOption.chineseName}{materialDisplay.index === 0 ? "" : (materialDisplay.index + 1)}</span>,
         align: "center",
         width: `${widthRatio}%`,
-        render: (_, record: Material, index: number) => <Checkbox checked={materialDisplay.isActive} onChange={onChange(materialDisplay.id, record, index)}></Checkbox>
+        render: (_, record: Material, index: number) => <Checkbox checked={record.displays[i].isActive} onChange={onChange(record.displays[i].id, record, index)}></Checkbox>
       });
     }
     return columnSegments;
