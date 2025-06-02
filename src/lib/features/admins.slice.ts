@@ -35,9 +35,11 @@ export const fetchAdmins = createAsyncThunk<Admin[], void>(
   }
 );
 
+export type UpdateOrCreatAdminByForm = Partial<Admin> | NewAdmin;
+
 type UpdateOrCreatAdminParams = {
   id: number;
-  admin: Partial<Admin> | NewAdmin;
+  admin: UpdateOrCreatAdminByForm;
 };
 
 export const updateOrCreatAdmin = createAsyncThunk<void, UpdateOrCreatAdminParams>(

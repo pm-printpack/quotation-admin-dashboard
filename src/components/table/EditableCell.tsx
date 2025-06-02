@@ -1,4 +1,4 @@
-import { Input, InputNumber } from "antd";
+import { Input, InputNumber, Select } from "antd";
 import type { AnyObject } from "antd/es/_util/type";
 import { Rule } from "antd/es/form";
 import FormItem from "antd/es/form/FormItem";
@@ -6,7 +6,7 @@ import Password from "antd/es/input/Password";
 import TextArea from "antd/es/input/TextArea";
 import type { ColumnGroupType, ColumnsType, ColumnType } from "antd/es/table";
 import { ColumnTitle } from "antd/es/table/interface";
-import { ReactNode, useMemo, type PropsWithChildren } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState, type PropsWithChildren } from "react";
 
 type ColumnCategory = "operation" | EditableCellInputType;
 
@@ -22,7 +22,14 @@ export interface EditableColumnGroupType<RecordType = AnyObject> extends ColumnG
 
 export type EditableColumnsType<RecordType = AnyObject> = ColumnsType<RecordType> & (EditableColumnGroupType<RecordType> | EditableColumnType<RecordType>)[]
 
-export type EditableCellInputType = "number" | "text" | "enum" | "credential" | "textarea";
+export type EditableCellInputTypeString = "number" | "text" | "credential" | "textarea" | "options";
+
+export type EditableCellInputTypeObject<RecordType = AnyObject, Props = any> = {
+  name: EditableCellInputTypeString,
+  props: Props | ((value: any, record: RecordType, index: number) => Props);
+};
+
+export type EditableCellInputType = EditableCellInputTypeString | EditableCellInputTypeObject;
 
 export interface EditableBaseCellProps {
   editing: boolean;
@@ -49,15 +56,34 @@ export default function EditableCell<RecordType extends AnyObject>({
   ...restProps
 }: PropsWithChildren<EditableCellProps<RecordType>>) {
   const inputNode: ReactNode = useMemo(() => {
-    switch (inputType) {
+    if (!editing) {
+      return undefined;
+    }
+    let inputTypeName: EditableCellInputTypeString;
+    let inputProps: any;
+    if (typeof inputType === "object") {
+      inputTypeName = inputType.name;
+      if (typeof inputType.props === "function") {
+        inputProps = inputType.props(record[dataIndex], record, index);
+      } else {
+        inputProps = inputType.props;
+      }
+    } else {
+      inputTypeName = inputType;
+    }
+    switch (inputTypeName) {
       case "number":
         return <InputNumber min={0} />;
       case "textarea":
-        return <TextArea rows={6} />
+        return <TextArea rows={6} />;
+      case "options":
+        console.log("inputProps: ", inputProps);
+        return <Select {...inputProps}/>;
       default:
         return <Input />;
     }
-  }, [inputType]);
+  }, [editing, inputType]);
+
   return (
     <td {...restProps}>
       {

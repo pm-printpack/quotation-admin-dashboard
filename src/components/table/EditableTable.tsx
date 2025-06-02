@@ -12,11 +12,11 @@ interface RecordTypeWithId extends AnyObject {
 
 export interface EditableTableProps<RecordType = AnyObject> extends PropsWithChildren<TableProps<RecordType>>, RefAttributes<Reference> {
   editingId?: number | string;
-  onEditSubmit?: (record: RecordType | undefined | null, preRecord: RecordType, index: number) => void;
+  onEditSubmit?: <RecordTypeByForm extends Partial<AnyObject>>(record: RecordTypeByForm | undefined | null, preRecord: RecordType, index: number) => void;
   onEditCancel?: (preRecord: RecordType, index: number) => void;
 }
 
-export default function EditableTable<RecordType extends RecordTypeWithId>({
+export default function EditableTable<RecordType extends RecordTypeWithId, RecordTypeByForm = AnyObject>({
   editingId,
   columns,
   onEditSubmit,
@@ -29,7 +29,7 @@ export default function EditableTable<RecordType extends RecordTypeWithId>({
   const onSubmit = useCallback((preRecord: RecordType, index: number) => {
     return () => {
       if (onEditSubmit) {
-        onEditSubmit(form.current?.getFieldsValue(), preRecord, index);
+        onEditSubmit<Partial<RecordTypeByForm>>(form.current?.getFieldsValue(), preRecord, index);
       }
     };
   }, [onEditSubmit]);
@@ -43,9 +43,7 @@ export default function EditableTable<RecordType extends RecordTypeWithId>({
   }, [onEditCancel]);
 
   columns = useMemo(() => columns ? wrapColumns(columns.map((column: EditableColumnType<RecordType>) => {
-    if (column.type === "credential") {
-
-    } else if (column.type === "operation") {
+    if (column.type === "operation") {
       return {
         ...column,
         render: (_, record: RecordType, index: number) => {
@@ -88,7 +86,13 @@ export default function EditableTable<RecordType extends RecordTypeWithId>({
 
     useEffect(() => {
       if (editing) {
-        form.current?.setFieldsValue(JSON.parse(JSON.stringify(record)));
+        const cloningRecord = JSON.parse(JSON.stringify(record)); // clone a record for form values.
+        for (const key in cloningRecord) {
+          if (Object.prototype.toString.call(cloningRecord[key]) === "[object Object]") {
+            cloningRecord[key] = cloningRecord[key].id || cloningRecord[key].name;
+          }
+        }
+        form.current?.setFieldsValue(cloningRecord);
       }
     }, [editing])
     return {

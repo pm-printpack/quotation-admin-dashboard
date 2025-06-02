@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Text from "antd/es/typography/Text";
 import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
 import DoubleCheckedButton from "@/components/DoubleCheckedButton";
-import { addRecord, Material, deleteAddingRecord, deleteMaterial, fetchMaterials, updateOrCreatMaterial } from "@/lib/features/materials.slice";
+import { addRecord, Material, deleteAddingRecord, deleteMaterial, fetchMaterials, updateOrCreatMaterial, UpdatedOrCreatMaterialByForm } from "@/lib/features/materials.slice";
 import EditableTable from "@/components/table/EditableTable";
 import { EditableColumnsType } from "@/components/table/EditableCell";
 
@@ -27,7 +27,7 @@ export default function MaterialListPage() {
     }
   }, [setEditingId]);
 
-  const onEditSubmit = useCallback(async (record: Material | undefined | null, preRecord: Material) => {
+  const onEditSubmit = useCallback(async (record: UpdatedOrCreatMaterialByForm | undefined | null, preRecord: Material) => {
     if (record) {
       await dispatch(updateOrCreatMaterial({id: preRecord.id, material: record})).unwrap();
       setEditingId(NaN);
@@ -187,7 +187,7 @@ export default function MaterialListPage() {
       <Flex vertical={false} justify="flex-end">
         <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>添加新材料</Button>
       </Flex>
-      <EditableTable<Material>
+      <EditableTable<Material, UpdatedOrCreatMaterialByForm>
         editingId={editingId}
         onEditSubmit={onEditSubmit}
         onEditCancel={onEditCancel}

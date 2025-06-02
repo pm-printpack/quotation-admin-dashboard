@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "build:stage": "NODE_ENV=stage next build",
     "start": "next start",
     "lint": "next lint",
     "out": "./node_modules/.bin/serve out/"

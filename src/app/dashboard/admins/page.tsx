@@ -1,5 +1,5 @@
 "use client";
-import { addRecord, Admin, deleteAddingRecord, deleteAdmin, fetchAdmins, updateOrCreatAdmin } from "@/lib/features/admins.slice";
+import { addRecord, Admin, deleteAddingRecord, deleteAdmin, fetchAdmins, updateOrCreatAdmin, UpdateOrCreatAdminByForm } from "@/lib/features/admins.slice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { Button, Flex, Space, Tooltip } from "antd";
@@ -27,7 +27,7 @@ export default function AdminsPage() {
     }
   }, [setEditingId]);
 
-  const onEditSubmit = useCallback(async (record: Admin | undefined | null, preRecord: Admin) => {
+  const onEditSubmit = useCallback(async (record: UpdateOrCreatAdminByForm | undefined | null, preRecord: Admin) => {
     if (record) {
       await dispatch(updateOrCreatAdmin({id: preRecord.id, admin: record})).unwrap();
       setEditingId(NaN);
@@ -120,7 +120,7 @@ export default function AdminsPage() {
       <Flex vertical={false} justify="flex-end">
         <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>添加新管理员</Button>
       </Flex>
-      <EditableTable<Admin>
+      <EditableTable<Admin, UpdateOrCreatAdminByForm>
         editingId={editingId}
         onEditSubmit={onEditSubmit}
         onEditCancel={onEditCancel}

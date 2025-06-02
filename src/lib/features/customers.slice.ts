@@ -1,6 +1,7 @@
 import { useRequest } from "@/hooks/useRequest";
 import { ActionReducerMapBuilder, PayloadAction, SerializedError, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { CustomerTier } from "./customer-tiers.slice";
+import { RootState } from "../store";
 
 const { get, post, put, delete: deleteFn } = useRequest();
 
@@ -12,12 +13,17 @@ type NewCustomer = {
   email: string;
   orgName: string;
   phone: string;
-  tier: CustomerTier;
+  tier: number;
 };
 
-export interface Customer extends Omit<NewCustomer, "password"> {
+export interface Customer extends Omit<NewCustomer, "password" | "tier"> {
   createdAt: Date;
+  tier?: CustomerTier;
 };
+
+interface UpdatedCustomerByForm extends Omit<Customer, "tier"> {
+  tier: number;
+}
 
 interface CustomersState {
   list: Customer[];
@@ -40,14 +46,16 @@ export const fetchCustomers = createAsyncThunk<Customer[], void>(
   }
 );
 
+export type UpdatedOrCreatCustomerByForm = Partial<UpdatedCustomerByForm> | NewCustomer;
+
 type UpdateOrCreatCustomerParams = {
   id: number;
-  customer: Partial<Customer> | NewCustomer;
+  customer: UpdatedOrCreatCustomerByForm
 };
 
-export const updateOrCreatCustomer = createAsyncThunk<void, UpdateOrCreatCustomerParams>(
+export const updateOrCreatCustomer = createAsyncThunk<Customer | undefined, UpdateOrCreatCustomerParams>(
   "customers/updateOrCreat",
-  async ({id, customer}: UpdateOrCreatCustomerParams, {dispatch}): Promise<void> => {
+  async ({id, customer}: UpdateOrCreatCustomerParams, {dispatch, getState}): Promise<Customer | undefined> => {
     if (id === -1) { // create a new one
       const {id, ...newCustomer} = customer as NewCustomer;
       const {error} = await post<Omit<NewCustomer, "id">>("/customers", newCustomer);
@@ -56,9 +64,22 @@ export const updateOrCreatCustomer = createAsyncThunk<void, UpdateOrCreatCustome
       }
       dispatch(fetchCustomers());
     } else {
-      const {error} = await put<Partial<Customer>>(`/customers/${id}`, customer);
+      const {error} = await put<Partial<UpdatedCustomerByForm>>(`/customers/${id}`, customer);
       if (error) {
         throw error;
+      }
+      const updatedCustomerByForm: UpdatedCustomerByForm = customer as UpdatedCustomerByForm;
+      const customerTiers: CustomerTier[] = (getState() as RootState).customerTiers.list;
+      if (typeof updatedCustomerByForm.tier === "number") {
+        const tier: CustomerTier | undefined = customerTiers.find((customerTier: CustomerTier) => customerTier.id === updatedCustomerByForm.tier);
+        if (tier) {
+          return {
+            ...updatedCustomerByForm,
+            tier: tier
+          }; 
+        } else {
+          dispatch(fetchCustomers());
+        }
       }
     }
   }
@@ -102,13 +123,11 @@ export const customersSlice = createSlice({
     }
   },
   extraReducers: (builder: ActionReducerMapBuilder<CustomersState>) => {
-    [fetchCustomers.pending, updateOrCreatCustomer.pending, deleteCustomer.pending].forEach((asyncPendingAction) => {
-      builder.addCase(asyncPendingAction, (state: CustomersState) => {
+    [fetchCustomers, updateOrCreatCustomer, deleteCustomer].forEach((asyncThunk) => {
+      builder.addCase(asyncThunk.pending, (state: CustomersState) => {
         state.loading = true;
       });
-    });
-    [fetchCustomers.rejected, updateOrCreatCustomer.rejected, deleteCustomer.rejected].forEach((asyncRejectedAction) => {
-      builder.addCase(asyncRejectedAction, (state: CustomersState, action: PayloadAction<unknown, string, unknown, SerializedError>) => {
+      builder.addCase(asyncThunk.rejected, (state: CustomersState, action: PayloadAction<unknown, string, unknown, SerializedError>) => {
         console.error("customers slice error: ", action.error);
         state.loading = false;
       });
@@ -117,15 +136,18 @@ export const customersSlice = createSlice({
       state.list = action.payload;
       state.loading = false;
     });
-    builder.addCase(updateOrCreatCustomer.fulfilled, (state: CustomersState, action: PayloadAction<void, string, {arg: UpdateOrCreatCustomerParams}>) => {
-      const {id, customer}: UpdateOrCreatCustomerParams = action.meta.arg;
-      const targetIndex: number = state.list.findIndex((item: Customer) => item.id === id);
-      if (targetIndex > -1) { // targeted
-        state.list[targetIndex] = {
-          ...state.list[targetIndex],
-          ...customer
-        };
-        state.list = [...state.list];
+    builder.addCase(updateOrCreatCustomer.fulfilled, (state: CustomersState, action: PayloadAction<Customer | undefined, string, {arg: UpdateOrCreatCustomerParams}>) => {
+      const updatedCustomer: Customer | undefined = action.payload;
+      if (updatedCustomer) {
+        const {id}: UpdateOrCreatCustomerParams = action.meta.arg;
+        const targetIndex: number = state.list.findIndex((item: Customer) => item.id === id);
+        if (targetIndex > -1) { // targeted
+          state.list[targetIndex] = {
+            ...state.list[targetIndex],
+            ...updatedCustomer
+          };
+          state.list = [...state.list];
+        }
       }
       state.loading = false;
     });

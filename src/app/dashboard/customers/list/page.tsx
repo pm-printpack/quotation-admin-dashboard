@@ -1,19 +1,20 @@
 "use client";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
-import { Button, Flex, Space, Tooltip } from "antd";
+import { Button, Flex, SelectProps, Space, Tooltip } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Text from "antd/es/typography/Text";
 import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
 import DoubleCheckedButton from "@/components/DoubleCheckedButton";
-import { addRecord, Customer, deleteAddingRecord, deleteCustomer, fetchCustomers, updateOrCreatCustomer } from "@/lib/features/customers.slice";
-import { CustomerTier } from "@/lib/features/customer-tiers.slice";
+import { addRecord, Customer, deleteAddingRecord, deleteCustomer, fetchCustomers, UpdatedOrCreatCustomerByForm, updateOrCreatCustomer } from "@/lib/features/customers.slice";
+import { CustomerTier, fetchCustomerTiers } from "@/lib/features/customer-tiers.slice";
 import EditableTable from "@/components/table/EditableTable";
 import { EditableColumnsType } from "@/components/table/EditableCell";
 
 export default function CustomerListPage() {
   const dispatch = useAppDispatch();
   const customers: Customer[] = useAppSelector((state: RootState) => state.customers.list);
+  const customerTiers: CustomerTier[] = useAppSelector((state: RootState) => state.customerTiers.list);
   const loading: boolean = useAppSelector((state: RootState) => state.customers.loading);
   const [editingId, setEditingId] = useState<number>(NaN);
   
@@ -28,7 +29,7 @@ export default function CustomerListPage() {
     }
   }, [setEditingId]);
 
-  const onEditSubmit = useCallback(async (record: Customer | undefined | null, preRecord: Customer) => {
+  const onEditSubmit = useCallback(async (record: UpdatedOrCreatCustomerByForm | undefined | null, preRecord: Customer) => {
     if (record) {
       await dispatch(updateOrCreatCustomer({id: preRecord.id, customer: record})).unwrap();
       setEditingId(NaN);
@@ -49,6 +50,7 @@ export default function CustomerListPage() {
 
   useEffect(() => {
     dispatch(fetchCustomers()).unwrap();
+    dispatch(fetchCustomerTiers()).unwrap();
   }, []);
 
   const columns: EditableColumnsType<Customer> = useMemo(() => [
@@ -128,6 +130,18 @@ export default function CustomerListPage() {
       dataIndex: "tier",
       key: "tier",
       width: "9%",
+      type: {
+        name: "options",
+        props: (tier: CustomerTier) => {
+          return ({
+            fieldNames: {
+              value: "id",
+              label: "name"
+            },
+            options: customerTiers
+          } as SelectProps);
+        }
+      },
       editable: true,
       rules: [
         {
@@ -135,7 +149,7 @@ export default function CustomerListPage() {
           message: "请选择客户等级!"
         }
       ],
-      render: (tier?: CustomerTier) => <Text>{tier?.name}</Text>
+      render: (tier: CustomerTier) => <Text>{tier.name}</Text>
     },
     {
       title: "操作",
@@ -170,14 +184,14 @@ export default function CustomerListPage() {
         </Space>
       ),
     }
-  ], [editingId]);
+  ], [editingId, customerTiers]);
 
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>
       <Flex vertical={false} justify="flex-end">
         <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>添加新客户</Button>
       </Flex>
-      <EditableTable<Customer>
+      <EditableTable<Customer, UpdatedOrCreatCustomerByForm>
         editingId={editingId}
         onEditSubmit={onEditSubmit}
         onEditCancel={onEditCancel}

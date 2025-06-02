@@ -42,9 +42,11 @@ export const fetchCustomerTiers = createAsyncThunk<CustomerTier[], void>(
   }
 );
 
+export type UpdateOrCreatCustomerTierByForm = Partial<CustomerTier> | NewCustomerTier;
+
 type UpdateOrCreatCustomerTierParams = {
   id: number;
-  customerTier: Partial<CustomerTier> | NewCustomerTier;
+  customerTier: UpdateOrCreatCustomerTierByForm;
 };
 
 export const updateOrCreatCustomerTier = createAsyncThunk<void, UpdateOrCreatCustomerTierParams>(

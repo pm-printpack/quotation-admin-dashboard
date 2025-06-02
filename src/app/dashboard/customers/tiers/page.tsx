@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Text from "antd/es/typography/Text";
 import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
 import DoubleCheckedButton from "@/components/DoubleCheckedButton";
-import { addRecord, CustomerTier, deleteAddingRecord, deleteCustomerTier, fetchCustomerTiers, NewCustomerTier, updateOrCreatCustomerTier } from "@/lib/features/customer-tiers.slice";
+import { addRecord, CustomerTier, deleteAddingRecord, deleteCustomerTier, fetchCustomerTiers, NewCustomerTier, updateOrCreatCustomerTier, UpdateOrCreatCustomerTierByForm } from "@/lib/features/customer-tiers.slice";
 import EditableTable from "@/components/table/EditableTable";
 import { EditableColumnsType } from "@/components/table/EditableCell";
 
@@ -27,7 +27,7 @@ export default function CustomerTiersPage() {
     }
   }, [dispatch, setEditingId]);
 
-  const onEditSubmit = useCallback(async (record: CustomerTier | undefined | null, preRecord: CustomerTier) => {
+  const onEditSubmit = useCallback(async (record: UpdateOrCreatCustomerTierByForm | undefined | null, preRecord: CustomerTier) => {
     if (record) {
       await dispatch(updateOrCreatCustomerTier({id: preRecord.id, customerTier: record})).unwrap();
       setEditingId(NaN);
@@ -210,7 +210,7 @@ export default function CustomerTiersPage() {
       <Flex vertical={false} justify="flex-end">
         <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>添加新等级</Button>
       </Flex>
-      <EditableTable<CustomerTier>
+      <EditableTable<CustomerTier, UpdateOrCreatCustomerTierByForm>
         editingId={editingId}
         onEditSubmit={onEditSubmit}
         onEditCancel={onEditCancel}
