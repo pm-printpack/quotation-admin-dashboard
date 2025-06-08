@@ -2,8 +2,9 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./features/auth.slice";
 import adminsReducer from "./features/admins.slice";
 import customersReducer from "./features/customers.slice";
-import CustomerTiersReducer from "./features/customer-tiers.slice";
-import MaterialsReducer from "./features/materials.slice";
+import customerTiersReducer from "./features/customer-tiers.slice";
+import materialsReducer from "./features/materials.slice";
+import exchangeReducer from "./features/exchange.slice";
 
 export const makeStore = () => {
   return configureStore({
@@ -11,8 +12,9 @@ export const makeStore = () => {
       auth: authReducer,
       admins: adminsReducer,
       customers: customersReducer,
-      customerTiers: CustomerTiersReducer,
-      materials: MaterialsReducer
+      customerTiers: customerTiersReducer,
+      materials: materialsReducer,
+      exchange: exchangeReducer
     }
   })
 }
