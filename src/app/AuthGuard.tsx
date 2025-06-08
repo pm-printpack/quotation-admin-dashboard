@@ -48,7 +48,7 @@ export default function AuthGuard({ children }: PropsWithChildren) {
       router.replace("/login")
     } else if (isValid && isLoginPage) {
       // already authenticated but on login page
-      router.replace("/");
+      router.replace("/dashboard");
       dispatch(setAuthenticated(true));
     } else {
       // OK to render the children
