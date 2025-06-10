@@ -9,7 +9,7 @@ export default function RootPage() {
 
   useEffect(() => {
     if (pathname === "/") {
-      router.replace("/dashboard")
+      router.replace("/dashboard");
     }
   }, [pathname]);
   return undefined;
