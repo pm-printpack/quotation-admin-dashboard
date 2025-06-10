@@ -30,7 +30,7 @@ export default function RootLayout({
     <html lang="en">
       <Head>
         <link rel="preload" href="https://lineview.com/wp-content/uploads/2024/06/robot-arms-in-the-factory-performs-precise-work-ac-2022-11-01-02-00-17-utc-scaled.jpg" as="image" />
-        <link rel="preload" href="https://pmpackaging-usa.com/wp-content/uploads/elementor/thumbs/LOGO-qxp9i8lonw5xlof5j7k0xca5x04cqoe20zkkjrg50a.png" as="image" />
+        <link rel="preload" href="/logo.png" as="image" />
       </Head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <StoreProvider>
