@@ -11,16 +11,16 @@ export default function MaterialsLayout({children}: PropsWithChildren) {
   const { token: { colorBgContainer } } = theme.useToken();
   const pathname: string = usePathname();
   const router: AppRouterInstance = useRouter();
-  const defaultActiveKey: string = useMemo(() => `/${(pathname.match(/^\/dashboard\/materials\/([a-zA-Z0-9\-_]*)/) || [])[1] || "list"}`, [pathname]);
+  const defaultActiveKey: string = useMemo(() => `/${(pathname.match(/^\/dashboard\/materials\/([a-zA-Z0-9\-_]*)\//) || [])[1] || "list"}`, [pathname]);
 
   const items: TabsProps["items"] = [
     {
-      key: "/list",
+      key: "/list/",
       label: "材料列表",
       children: children
     },
     {
-      key: "/display-controller",
+      key: "/display-controller/",
       label: "材料显示控制列表",
       children: children
     }
