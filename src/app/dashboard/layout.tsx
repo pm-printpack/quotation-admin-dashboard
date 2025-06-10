@@ -46,7 +46,7 @@ export default function DashboardLayout({children}: PropsWithChildren) {
     router.push(`/dashboard${selectedKeys[0]}`);
   }, [router]);
 
-  const defaultSelectedKeys: string[] = useMemo(() => [`/${(pathname.match(/^\/dashboard\/([a-zA-Z0-9\-_]*)\/?/) || [])[1] || ""}`], [pathname]);
+  const defaultSelectedKeys: string[] = useMemo(() => [`/${(pathname.match(/^\/dashboard\/([a-zA-Z0-9\-_]*\/?)/) || [])[1] || ""}`], [pathname]);
 
   return (
     isAuthenticated
