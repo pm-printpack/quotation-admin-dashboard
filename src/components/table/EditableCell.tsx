@@ -73,14 +73,13 @@ export default function EditableCell<RecordType extends AnyObject>({
     }
     switch (inputTypeName) {
       case "number":
-        return <InputNumber min={0} />;
+        return <InputNumber min={0} {...inputProps} />;
       case "textarea":
-        return <TextArea rows={6} />;
+        return <TextArea rows={6} {...inputProps} />;
       case "options":
-        console.log("inputProps: ", inputProps);
         return <Select {...inputProps}/>;
       default:
-        return <Input />;
+        return <Input {...inputProps} />;
     }
   }, [editing, inputType]);
 

@@ -86,6 +86,13 @@ export default function MaterialListPage() {
       width: "11%",
       align: "right",
       editable: true,
+      type: {
+        name: "number",
+        props: {
+          min: 0.001,
+          step: 0.001
+        }
+      },
       rules: [
         {
           required: true,
