@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Text from "antd/es/typography/Text";
 import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
 import DoubleCheckedButton from "@/components/DoubleCheckedButton";
-import { addRecord, CustomerTier, deleteAddingRecord, deleteCustomerTier, fetchCustomerTiers, NewCustomerTier, updateOrCreatCustomerTier, UpdateOrCreatCustomerTierByForm } from "@/lib/features/customer-tiers.slice";
+import { addRecord, createCustomerTier, CustomerTier, deleteAddingRecord, deleteCustomerTier, fetchCustomerTiers, NewCustomerTier, updateCustomerTier } from "@/lib/features/customer-tiers.slice";
 import EditableTable from "@/components/table/EditableTable";
 import { EditableColumnsType } from "@/components/table/EditableCell";
 
@@ -20,6 +20,16 @@ export default function CustomerTiersPage() {
     dispatch(addRecord());
     setEditingId(-1);
   }, [dispatch, setEditingId]);
+
+  const onNewSubmit = useCallback(async(record: NewCustomerTier) => {
+    await dispatch(createCustomerTier(record)).unwrap();
+    setEditingId(NaN);
+  }, [dispatch, setEditingId]);
+
+  const onNewCancel = useCallback(() => {
+    dispatch(deleteAddingRecord());
+    setEditingId(NaN);
+  }, [dispatch, setEditingId]);
   
   const onEdit = useCallback((id: number) => {
     return () => {
@@ -27,15 +37,12 @@ export default function CustomerTiersPage() {
     }
   }, [dispatch, setEditingId]);
 
-  const onEditSubmit = useCallback(async (record: UpdateOrCreatCustomerTierByForm | undefined | null, preRecord: CustomerTier) => {
-    if (record) {
-      await dispatch(updateOrCreatCustomerTier({id: preRecord.id, customerTier: record})).unwrap();
-      setEditingId(NaN);
-    }
+  const onEditSubmit = useCallback(async (record: Required<Partial<CustomerTier> & {id: number}>, preRecord: CustomerTier) => {
+    await dispatch(updateCustomerTier(record)).unwrap();
+    setEditingId(NaN);
   }, [dispatch, setEditingId]);
 
   const onEditCancel = useCallback(() => {
-    dispatch(deleteAddingRecord());
     setEditingId(NaN);
   }, [dispatch, setEditingId]);
 
@@ -176,9 +183,15 @@ export default function CustomerTiersPage() {
       type: "operation",
       render: (_, record: CustomerTier) => (
         <Space size="middle">
-          <Tooltip title={`修改等级（${record.name}）的信息`}>
-            <Button type="text" shape="circle" size="middle" disabled={!!editingId} icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
-          </Tooltip>
+          {
+            !!editingId
+            ?
+            <Button type="text" shape="circle" size="middle" disabled={true} icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
+            :
+            <Tooltip title={`修改等级（${record.name}）的信息`}>
+              <Button type="text" shape="circle" size="middle" icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
+            </Tooltip>
+          }
           <DoubleCheckedButton
             buttonProps={{
               type: "text",
@@ -188,9 +201,15 @@ export default function CustomerTiersPage() {
               danger: true,
               disabled: !!editingId
             }}
-            tooltipProps={{
-              title: `删除等级（${record.name}）`
-            }}
+            tooltipProps={
+              !!editingId
+              ?
+              undefined
+              :
+              {
+                title: `删除等级（${record.name}）`
+              }
+            }
             popconfirmProps={{
               title: `删除（${record.name}）`,
               description: `你确定想删除等级（${record.name}）吗？`,
@@ -210,8 +229,10 @@ export default function CustomerTiersPage() {
       <Flex vertical={false} justify="flex-end">
         <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>添加新等级</Button>
       </Flex>
-      <EditableTable<CustomerTier, UpdateOrCreatCustomerTierByForm>
+      <EditableTable<CustomerTier, NewCustomerTier, Required<Partial<CustomerTier> & {id: number}>>
         editingId={editingId}
+        onNewSubmit={onNewSubmit}
+        onNewCancel={onNewCancel}
         onEditSubmit={onEditSubmit}
         onEditCancel={onEditCancel}
         columns={columns}

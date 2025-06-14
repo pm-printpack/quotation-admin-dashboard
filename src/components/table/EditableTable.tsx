@@ -2,42 +2,63 @@ import { Button, Form, FormInstance, Space, Table, TableProps } from "antd";
 import { AnyObject } from "antd/es/_util/type";
 import { Reference } from "rc-table";
 import { PropsWithChildren, Ref, RefAttributes, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import EditableCell, { EditableCellInputType, EditableColumnType, wrapColumns } from "./EditableCell";
+import EditableCell, { EditableCellInputType, EditableCellInputTypeObject, EditableColumnType, wrapColumns } from "./EditableCell";
 import DoubleCheckedButton from "../DoubleCheckedButton";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import { DataIndex } from "rc-table/lib/interface";
 
 interface RecordTypeWithId extends AnyObject {
   id: number | string;
 }
 
-export interface EditableTableProps<RecordType = AnyObject> extends PropsWithChildren<TableProps<RecordType>>, RefAttributes<Reference> {
+interface NewRecordType extends AnyObject {}
+
+interface UpdatedRecordType extends RecordTypeWithId, NewRecordType {}
+
+export interface EditableTableProps<RecordType extends RecordTypeWithId, NewRecordType = Omit<RecordType, "id">, UpdatedRecordType = Partial<RecordType>> extends PropsWithChildren<TableProps<RecordType>>, RefAttributes<Reference> {
   editingId?: number | string;
-  onEditSubmit?: <RecordTypeByForm extends Partial<AnyObject>>(record: RecordTypeByForm | undefined | null, preRecord: RecordType, index: number) => void;
+  onNewSubmit?: (record: NewRecordType, index: number) => void;
+  onNewCancel?: (index: number) => void;
+  onEditSubmit?: (record: UpdatedRecordType, preRecord: RecordType, index: number) => void;
   onEditCancel?: (preRecord: RecordType, index: number) => void;
 }
 
-export default function EditableTable<RecordType extends RecordTypeWithId, RecordTypeByForm = AnyObject>({
+export default function EditableTable<RecordType extends RecordTypeWithId, NewRecordType = Omit<RecordType, "id">, UpdatedRecordType = Partial<RecordType>>({
   editingId,
   columns,
+  onNewSubmit,
+  onNewCancel,
   onEditSubmit,
   onEditCancel,
   children,
   ...props
-}: EditableTableProps<RecordType>) {
+}: EditableTableProps<RecordType, NewRecordType, UpdatedRecordType>) {
   const form: Ref<FormInstance> = useRef<FormInstance>(null);
 
   const onSubmit = useCallback((preRecord: RecordType, index: number) => {
     return () => {
-      if (onEditSubmit) {
-        onEditSubmit<Partial<RecordTypeByForm>>(form.current?.getFieldsValue(), preRecord, index);
+      if (preRecord.id) { // update
+        if (onEditSubmit) {
+          onEditSubmit({ id: preRecord.id, ...form.current?.getFieldsValue() }, preRecord, index);
+        }
+      } else { // new
+        if (onNewSubmit) {
+          onNewSubmit(form.current?.getFieldsValue(), index);
+        }
       }
     };
   }, [onEditSubmit]);
 
   const onCancel = useCallback((preRecord: RecordType, index: number) => {
     return () => {
-      if (onEditCancel) {
-        onEditCancel(preRecord, index);
+      if (preRecord?.id) { // cancel update
+        if (onEditCancel) {
+          onEditCancel(preRecord, index);
+        }
+      } else { // cancel a new
+        if (onNewCancel) {
+          onNewCancel(index);
+        }
       }
     };
   }, [onEditCancel]);
@@ -48,7 +69,7 @@ export default function EditableTable<RecordType extends RecordTypeWithId, Recor
         ...column,
         render: (_, record: RecordType, index: number) => {
           if (column.render) {
-            const editing: boolean = record.id === editingId;
+            const editing: boolean = !record.id || record.id === editingId;
             return (
               editing
               ?
@@ -78,28 +99,31 @@ export default function EditableTable<RecordType extends RecordTypeWithId, Recor
       };
     }
     return column;
-  }), (value: any, record: RecordType, index?: number, col?: EditableColumnType<RecordType>) => {
+  }), (value: any, record: RecordType, col: EditableColumnType<RecordType>, index?: number) => {
     const [editing, setEditing] = useState<boolean>(record.id === editingId);
     useEffect(() => {
-      setEditing(record.id === editingId);
+      setEditing(!record.id || record.id === editingId);
     }, [record.id, editingId]);
 
     useEffect(() => {
-      if (editing) {
-        const cloningRecord = JSON.parse(JSON.stringify(record)); // clone a record for form values.
-        for (const key in cloningRecord) {
-          if (Object.prototype.toString.call(cloningRecord[key]) === "[object Object]") {
-            cloningRecord[key] = cloningRecord[key].id || cloningRecord[key].name;
-          }
+      if (editing && col.dataIndex) {
+        let value: any = record[col.dataIndex as string];
+        if (Object.prototype.toString.call(value) === "[object Object]") {
+          value = value.id || value.name;
         }
-        form.current?.setFieldsValue(cloningRecord);
+        const typeName: string | undefined = ((col.type as EditableCellInputTypeObject)?.props || {}).name;
+        const dataIndex: DataIndex<RecordType> = typeName || col.dataIndex;
+        form.current?.setFieldsValue({
+          [dataIndex as string]: value
+        });
       }
     }, [editing])
     return {
       inputType: col?.type ? (col.type === "credential" ? "credential" : col.type as EditableCellInputType) : (typeof value === "number" ? "number" : "text"),
       editing: editing
     }
-  }) : [], [editingId]);
+  }) : [], [editingId, columns]);
+  
   return (
     <Form ref={form}>
       <Table<RecordType>
@@ -108,6 +132,7 @@ export default function EditableTable<RecordType extends RecordTypeWithId, Recor
             cell: EditableCell<RecordType>
           }
         }}
+        rowKey={(record: RecordType) => record.id || Date.now().toString()}
         columns={columns}
         {...props}
       >

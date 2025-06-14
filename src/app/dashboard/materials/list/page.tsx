@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Text from "antd/es/typography/Text";
 import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
 import DoubleCheckedButton from "@/components/DoubleCheckedButton";
-import { addRecord, Material, deleteAddingRecord, deleteMaterial, fetchMaterials, updateOrCreatMaterial, UpdatedOrCreatMaterialByForm } from "@/lib/features/materials.slice";
+import { addRecord, Material, deleteAddingRecord, deleteMaterial, fetchMaterials, createMaterial, NewMaterial, updateMaterial, UpdatedMaterial } from "@/lib/features/materials.slice";
 import EditableTable from "@/components/table/EditableTable";
 import { EditableColumnsType } from "@/components/table/EditableCell";
 
@@ -21,21 +21,28 @@ export default function MaterialListPage() {
     setEditingId(-1);
   }, [dispatch, setEditingId]);
 
+  const onNewSubmit = useCallback(async(record: NewMaterial) => {
+    await dispatch(createMaterial(record as NewMaterial)).unwrap();
+    setEditingId(NaN);
+  }, [dispatch, setEditingId]);
+
+  const onNewCancel = useCallback(() => {
+    dispatch(deleteAddingRecord());
+    setEditingId(NaN);
+  }, [dispatch, setEditingId]);
+
   const onEdit = useCallback((id: number) => {
     return () => {
       setEditingId(id);
     }
   }, [setEditingId]);
 
-  const onEditSubmit = useCallback(async (record: UpdatedOrCreatMaterialByForm | undefined | null, preRecord: Material) => {
-    if (record) {
-      await dispatch(updateOrCreatMaterial({id: preRecord.id, material: record})).unwrap();
-      setEditingId(NaN);
-    }
+  const onEditSubmit = useCallback(async(record: UpdatedMaterial, preRecord: Material) => {
+    await dispatch(updateMaterial({material: record as UpdatedMaterial, preMaterial: preRecord})).unwrap();
+    setEditingId(NaN);
   }, [dispatch, setEditingId]);
-
+  
   const onEditCancel = useCallback(() => {
-    dispatch(deleteAddingRecord());
     setEditingId(NaN);
   }, [dispatch, setEditingId]);
 
@@ -108,6 +115,13 @@ export default function MaterialListPage() {
       width: "9%",
       align: "right",
       editable: true,
+      type: {
+        name: "number",
+        props: {
+          min: 0.01,
+          step: 0.01
+        }
+      },
       rules: [
         {
           required: true,
@@ -118,18 +132,26 @@ export default function MaterialListPage() {
     },
     {
       title: <span>面积重<br/>（g/cm²）</span>,
-      key: "weightPerSurfaceArea",
+      key: "weightPerCm2",
+      dataIndex: "weightPerCm2",
       width: "11%",
       align: "right",
-      render: (_, record: Material) => <Text>{record.thickness / 10000}</Text>
+      render: (text: number) => <Text>{text}</Text>
     },
     {
       title: <span>重量单价<br/>（元/kg）</span>,
-      dataIndex: "unitPrice",
-      key: "unitPrice",
+      dataIndex: "unitPricePerKg",
+      key: "unitPricePerKg",
       width: "10%",
       align: "right",
       editable: true,
+      type: {
+        name: "number",
+        props: {
+          min: 0.01,
+          step: 0.01
+        }
+      },
       rules: [
         {
           required: true,
@@ -140,10 +162,11 @@ export default function MaterialListPage() {
     },
     {
       title: <span>面积单价<br/>（元/m²）</span>,
-      key: "unitPricePerSurfaceArea",
+      key: "unitPricePerSquareMeter",
+      dataIndex: "unitPricePerSquareMeter",
       width: "11%",
       align: "right",
-      render: (_, record: Material) => <Text>{(record.thickness / 10000) * record.unitPrice * 10}</Text>
+      render: (text: number) => <Text>{text}</Text>
     },
     {
       title: "备注",
@@ -160,9 +183,15 @@ export default function MaterialListPage() {
       type: "operation",
       render: (_, record: Material) => (
         <Space size="middle">
-          <Tooltip title={`修改材料（${record.chineseName}）的信息`}>
-            <Button type="text" shape="circle" size="middle" disabled={!!editingId} icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
-          </Tooltip>
+          {
+            !!editingId
+            ?
+            <Button type="text" shape="circle" size="middle" disabled={true} icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
+            :
+            <Tooltip title={`修改材料（${record.chineseName}）的信息`}>
+              <Button type="text" shape="circle" size="middle" icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
+            </Tooltip>
+          }
           <DoubleCheckedButton
             buttonProps={{
               type: "text",
@@ -172,9 +201,15 @@ export default function MaterialListPage() {
               danger: true,
               disabled: !!editingId
             }}
-            tooltipProps={{
-              title: `删除材料（${record.chineseName}）`
-            }}
+            tooltipProps={
+              !!editingId
+              ?
+              undefined
+              :
+              {
+                title: `删除材料（${record.chineseName}）`
+              }
+            }
             popconfirmProps={{
               title: `删除（${record.chineseName}）`,
               description: `你确定想删除材料（${record.chineseName}）吗？`,
@@ -194,8 +229,10 @@ export default function MaterialListPage() {
       <Flex vertical={false} justify="flex-end">
         <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>添加新材料</Button>
       </Flex>
-      <EditableTable<Material, UpdatedOrCreatMaterialByForm>
+      <EditableTable<Material, NewMaterial, UpdatedMaterial>
         editingId={editingId}
+        onNewSubmit={onNewSubmit}
+        onNewCancel={onNewCancel}
         onEditSubmit={onEditSubmit}
         onEditCancel={onEditCancel}
         columns={columns}

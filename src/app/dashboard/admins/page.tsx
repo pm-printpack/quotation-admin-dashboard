@@ -1,5 +1,5 @@
 "use client";
-import { addRecord, Admin, deleteAddingRecord, deleteAdmin, fetchAdmins, updateOrCreatAdmin, UpdateOrCreatAdminByForm } from "@/lib/features/admins.slice";
+import { addRecord, Admin, createAdmin, deleteAddingRecord, deleteAdmin, fetchAdmins, NewAdmin, updateAdmin } from "@/lib/features/admins.slice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { Button, Flex, Space, Tooltip } from "antd";
@@ -21,21 +21,28 @@ export default function AdminsPage() {
     setEditingId(-1);
   }, [dispatch, setEditingId]);
 
+  const onNewSubmit = useCallback(async(record: NewAdmin) => {
+    await dispatch(createAdmin(record)).unwrap();
+    setEditingId(NaN);
+  }, [dispatch, setEditingId]);
+
+  const onNewCancel = useCallback(() => {
+    dispatch(deleteAddingRecord());
+    setEditingId(NaN);
+  }, [dispatch, setEditingId]);
+
   const onEdit = useCallback((id: number) => {
     return () => {
       setEditingId(id);
     }
   }, [setEditingId]);
 
-  const onEditSubmit = useCallback(async (record: UpdateOrCreatAdminByForm | undefined | null, preRecord: Admin) => {
-    if (record) {
-      await dispatch(updateOrCreatAdmin({id: preRecord.id, admin: record})).unwrap();
-      setEditingId(NaN);
-    }
+  const onEditSubmit = useCallback(async (record: Admin) => {
+    await dispatch(updateAdmin(record)).unwrap();
+    setEditingId(NaN);
   }, [dispatch, setEditingId]);
 
   const onEditCancel = useCallback(() => {
-    dispatch(deleteAddingRecord());
     setEditingId(NaN);
   }, [dispatch, setEditingId]);
 
@@ -86,9 +93,15 @@ export default function AdminsPage() {
       type: "operation",
       render: (_, record: Admin) => (
         <Space size="middle">
-          <Tooltip title={`修改管理员（${record.name}）的信息`}>
-            <Button type="text" shape="circle" size="middle" disabled={!!editingId} icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
-          </Tooltip>
+          {
+            !!editingId
+            ?
+            <Button type="text" shape="circle" size="middle" disabled={true} icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
+            :
+            <Tooltip title={`修改管理员（${record.name}）的信息`}>
+              <Button type="text" shape="circle" size="middle" icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
+            </Tooltip>
+          }
           <DoubleCheckedButton
             buttonProps={{
               type: "text",
@@ -98,9 +111,15 @@ export default function AdminsPage() {
               danger: true,
               disabled: !!editingId
             }}
-            tooltipProps={{
-              title: `删除管理员（${record.name}）`
-            }}
+            tooltipProps={
+              !!editingId
+              ?
+              undefined
+              :
+              {
+                title: `删除管理员（${record.name}）`
+              }
+            }
             popconfirmProps={{
               title: `删除（${record.name}）`,
               description: `你确定想删除管理员（${record.name}）吗？`,
@@ -120,8 +139,10 @@ export default function AdminsPage() {
       <Flex vertical={false} justify="flex-end">
         <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>添加新管理员</Button>
       </Flex>
-      <EditableTable<Admin, UpdateOrCreatAdminByForm>
+      <EditableTable<Admin, NewAdmin, Admin>
         editingId={editingId}
+        onNewSubmit={onNewSubmit}
+        onNewCancel={onNewCancel}
         onEditSubmit={onEditSubmit}
         onEditCancel={onEditCancel}
         columns={columns}

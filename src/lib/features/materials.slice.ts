@@ -3,8 +3,7 @@ import { ActionReducerMapBuilder, PayloadAction, SerializedError, createAsyncThu
 
 const { get, post, patch, delete: deleteFn } = useRequest();
 
-type NewMaterial = {
-  id: number;
+export type NewMaterial = {
   name: string;
   chineseName: string;
 
@@ -21,15 +20,28 @@ type NewMaterial = {
   thickness: number;
 
   /**
-   * Unit price by weight of material
-   * Unit is RMB/kg
+   * Unit Price per Square Meter
+   * CNY/m²
    */
-  unitPrice: number;
+  unitPricePerSquareMeter: number;
+
+  /**
+   * Unit Price per Kelogram
+   * CNY/kg
+   */
+  unitPricePerKg: number;
+
+  /**
+   * Weight per square centimeter of material
+   * The unit is g/cm²
+   */
+  weightPerCm2: number;
 
   remarks: string;
 };
 
 export interface Material extends NewMaterial {
+  id: number;
   displays: MaterialDisplay[];
   createdAt: Date;
 };
@@ -70,28 +82,44 @@ export const fetchMaterials = createAsyncThunk<Material[], void>(
   }
 );
 
-export type UpdatedOrCreatMaterialByForm = Partial<Material> | NewMaterial;
+export const createMaterial = createAsyncThunk<void, NewMaterial>(
+  "materials/create",
+  async (material: NewMaterial, {dispatch}): Promise<void> => {
+    const {error} = await post<NewMaterial>("/materials", {
+      ...material,
+      weightPerCm2: Number((material.thickness / 10000).toFixed(3)),
+      unitPricePerSquareMeter: Number(((material.thickness / 10000) * material.unitPricePerKg * 10).toFixed(2))
+    });
+    if (error) {
+      throw error;
+    }
+    dispatch(fetchMaterials());
+  }
+);
 
-type UpdateOrCreatMaterialParams = {
-  id: number;
-  material: UpdatedOrCreatMaterialByForm;
+export type UpdatedMaterial = Required<Partial<Material> & {id: number}>;
+
+type UpdatedMaterialParams = {
+  material: UpdatedMaterial;
+  preMaterial: Material;
 };
 
-export const updateOrCreatMaterial = createAsyncThunk<void, UpdateOrCreatMaterialParams>(
-  "materials/updateOrCreat",
-  async ({id, material}: UpdateOrCreatMaterialParams, {dispatch}): Promise<void> => {
-    if (id === -1) { // create a new one
-      const {id, ...newMaterial} = material as NewMaterial;
-      const {error} = await post<Omit<NewMaterial, "id">>("/materials", newMaterial);
-      if (error) {
-        throw error;
-      }
-      dispatch(fetchMaterials());
-    } else {
-      const {error} = await patch<Partial<Material>>(`/materials/${id}`, material);
-      if (error) {
-        throw error;
-      }
+export const updateMaterial = createAsyncThunk<void, UpdatedMaterialParams>(
+  "materials/update",
+  async ({material, preMaterial}: UpdatedMaterialParams): Promise<void> => {
+    const {id, ...updatedMaterial} = material;
+    const updatedWholeMaterial: Material = {
+      ...preMaterial,
+      ...material
+    };
+    const weightPerCm2: number = Number((updatedWholeMaterial.density * updatedWholeMaterial.thickness / 10000).toFixed(3));
+    const {error} = await patch<Partial<Material>>(`/materials/${id}`, {
+      ...updatedMaterial,
+      weightPerCm2: weightPerCm2,
+      unitPricePerSquareMeter: Number((weightPerCm2 * updatedWholeMaterial.unitPricePerKg * 10).toFixed(2))
+    });
+    if (error) {
+      throw error;
     }
   }
 );
@@ -105,7 +133,7 @@ type UpdateMaterialDisplayParams = {
 export const updateMaterialDisplay = createAsyncThunk<void, UpdateMaterialDisplayParams>(
   "materials/updateMaterialDisplay",
   async ({id, materialDisplay}: UpdateMaterialDisplayParams): Promise<void> => {
-    const {error} = await patch<Partial<Material>>(`/materials/display/${id}`, materialDisplay);
+    const {error} = await patch<Partial<MaterialDisplay>>(`/materials/display/${id}`, materialDisplay);
     if (error) {
       throw error;
     }
@@ -129,19 +157,20 @@ export const materialsSlice = createSlice({
     addRecord: (state: MaterialsState) => {
       state.list = [
         {
-          id: -1,
           name: "",
           chineseName: "",
-          density: 0,
-          thickness: 0,
-          unitPrice: 0,
+          density: 0.001,
+          thickness: 0.01,
+          unitPricePerSquareMeter: 0,
+          weightPerCm2: 0,
+          unitPricePerKg: 0.01,
           remarks: ""
         } as Material,
         ...state.list
       ];
     },
     deleteAddingRecord: (state: MaterialsState) => {
-      const index: number = state.list.findIndex((item: Material) => item.id === -1);
+      const index: number = state.list.findIndex((item: Material | NewMaterial) => !item.hasOwnProperty("id"));
       if (index !== -1) {
         state.list.splice(index, 1);
         state.list = [...state.list];
@@ -149,7 +178,7 @@ export const materialsSlice = createSlice({
     }
   },
   extraReducers: (builder: ActionReducerMapBuilder<MaterialsState>) => {
-    [fetchMaterials, updateOrCreatMaterial, updateMaterialDisplay, deleteMaterial].forEach((asyncThunk) => {
+    [fetchMaterials, createMaterial, updateMaterial, updateMaterialDisplay, deleteMaterial].forEach((asyncThunk) => {
       builder.addCase(asyncThunk.pending, (state: MaterialsState) => {
         state.loading = true;
       });
@@ -162,9 +191,9 @@ export const materialsSlice = createSlice({
       state.list = action.payload;
       state.loading = false;
     });
-    builder.addCase(updateOrCreatMaterial.fulfilled, (state: MaterialsState, action: PayloadAction<void, string, {arg: UpdateOrCreatMaterialParams}>) => {
-      const {id, material}: UpdateOrCreatMaterialParams = action.meta.arg;
-      const targetIndex: number = state.list.findIndex((item: Material) => item.id === id);
+    builder.addCase(updateMaterial.fulfilled, (state: MaterialsState, action: PayloadAction<void, string, {arg: UpdatedMaterialParams}>) => {
+      const {material}: UpdatedMaterialParams = action.meta.arg;
+      const targetIndex: number = state.list.findIndex((item: Material) => item.id === material.id);
       if (targetIndex > -1) { // targeted
         state.list[targetIndex] = {
           ...state.list[targetIndex],

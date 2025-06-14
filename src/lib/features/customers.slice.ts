@@ -5,25 +5,21 @@ import { RootState } from "../store";
 
 const { get, post, put, delete: deleteFn } = useRequest();
 
-type NewCustomer = {
-  id: number;
+export type NewCustomer = {
   username: string;
   password: string;
   name: string;
   email: string;
   orgName: string;
   phone: string;
-  tier: number;
+  tierId: number;
 };
 
-export interface Customer extends Omit<NewCustomer, "password" | "tier"> {
+export interface Customer extends Omit<NewCustomer, "password" | "tierId"> {
+  id: number;
   createdAt: Date;
   tier?: CustomerTier;
 };
-
-interface UpdatedCustomerByForm extends Omit<Customer, "tier"> {
-  tier: number;
-}
 
 interface CustomersState {
   list: Customer[];
@@ -46,42 +42,47 @@ export const fetchCustomers = createAsyncThunk<Customer[], void>(
   }
 );
 
-export type UpdatedOrCreatCustomerByForm = Partial<UpdatedCustomerByForm> | NewCustomer;
+export const createCustomer = createAsyncThunk<void, NewCustomer>(
+  "customers/create",
+  async (customer: NewCustomer, {dispatch, getState}): Promise<void> => {
+    const {error} = await post<NewCustomer>("/customers", customer);
+    if (error) {
+      throw error;
+    }
+    dispatch(fetchCustomers());
+  }
+);
 
-type UpdateOrCreatCustomerParams = {
-  id: number;
-  customer: UpdatedOrCreatCustomerByForm
+export type UpdatedCustomer = Required<Partial<Omit<Customer, "tier">> & {id: number, tierId?: number}>;
+
+type UpdatedCustomerParams = {
+  customer: UpdatedCustomer;
+  preCustomer: Customer;
 };
 
-export const updateOrCreatCustomer = createAsyncThunk<Customer | undefined, UpdateOrCreatCustomerParams>(
-  "customers/updateOrCreat",
-  async ({id, customer}: UpdateOrCreatCustomerParams, {dispatch, getState}): Promise<Customer | undefined> => {
-    if (id === -1) { // create a new one
-      const {id, ...newCustomer} = customer as NewCustomer;
-      const {error} = await post<Omit<NewCustomer, "id">>("/customers", newCustomer);
-      if (error) {
-        throw error;
-      }
-      dispatch(fetchCustomers());
-    } else {
-      const {error} = await put<Partial<UpdatedCustomerByForm>>(`/customers/${id}`, customer);
-      if (error) {
-        throw error;
-      }
-      const updatedCustomerByForm: UpdatedCustomerByForm = customer as UpdatedCustomerByForm;
-      const customerTiers: CustomerTier[] = (getState() as RootState).customerTiers.list;
-      if (typeof updatedCustomerByForm.tier === "number") {
-        const tier: CustomerTier | undefined = customerTiers.find((customerTier: CustomerTier) => customerTier.id === updatedCustomerByForm.tier);
-        if (tier) {
-          return {
-            ...updatedCustomerByForm,
-            tier: tier
-          }; 
-        } else {
-          dispatch(fetchCustomers());
-        }
+export const updateCustomer = createAsyncThunk<Customer, UpdatedCustomerParams>(
+  "customers/update",
+  async ({customer, preCustomer}: UpdatedCustomerParams, {getState}): Promise<Customer> => {
+    const {id, ...updatedCustomer} = customer;
+    const {error} = await put<Partial<Customer>>(`/customers/${id}`, updatedCustomer);
+    if (error) {
+      throw error;
+    }
+    const customerTiers: CustomerTier[] = (getState() as RootState).customerTiers.list;
+    if (updatedCustomer.tierId) {
+      const tier: CustomerTier | undefined = customerTiers.find((customerTier: CustomerTier) => customerTier.id === updatedCustomer.tierId);
+      if (tier) {
+        return {
+          ...preCustomer,
+          ...updatedCustomer,
+          tier: tier
+        };
       }
     }
+    return {
+      ...preCustomer,
+      ...updatedCustomer
+    };
   }
 );
 
@@ -102,7 +103,6 @@ export const customersSlice = createSlice({
     addRecord: (state: CustomersState) => {
       state.list = [
         {
-          id: -1,
           username: "",
           password: "",
           name: "",
@@ -115,7 +115,7 @@ export const customersSlice = createSlice({
       ];
     },
     deleteAddingRecord: (state: CustomersState) => {
-      const index: number = state.list.findIndex((item: Customer) => item.id === -1);
+      const index: number = state.list.findIndex((item: Customer | NewCustomer) => !item.hasOwnProperty("id"));
       if (index !== -1) {
         state.list.splice(index, 1);
         state.list = [...state.list];
@@ -123,7 +123,7 @@ export const customersSlice = createSlice({
     }
   },
   extraReducers: (builder: ActionReducerMapBuilder<CustomersState>) => {
-    [fetchCustomers, updateOrCreatCustomer, deleteCustomer].forEach((asyncThunk) => {
+    [fetchCustomers, createCustomer, updateCustomer, deleteCustomer].forEach((asyncThunk) => {
       builder.addCase(asyncThunk.pending, (state: CustomersState) => {
         state.loading = true;
       });
@@ -136,11 +136,11 @@ export const customersSlice = createSlice({
       state.list = action.payload;
       state.loading = false;
     });
-    builder.addCase(updateOrCreatCustomer.fulfilled, (state: CustomersState, action: PayloadAction<Customer | undefined, string, {arg: UpdateOrCreatCustomerParams}>) => {
-      const updatedCustomer: Customer | undefined = action.payload;
+    builder.addCase(updateCustomer.fulfilled, (state: CustomersState, action: PayloadAction<Customer, string, {arg: UpdatedCustomerParams}>) => {
+      const updatedCustomer: Customer = action.payload;
       if (updatedCustomer) {
-        const {id}: UpdateOrCreatCustomerParams = action.meta.arg;
-        const targetIndex: number = state.list.findIndex((item: Customer) => item.id === id);
+        const {customer}: UpdatedCustomerParams = action.meta.arg;
+        const targetIndex: number = state.list.findIndex((item: Customer) => item.id === customer.id);
         if (targetIndex > -1) { // targeted
           state.list[targetIndex] = {
             ...state.list[targetIndex],

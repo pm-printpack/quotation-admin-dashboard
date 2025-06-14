@@ -25,8 +25,8 @@ export type EditableColumnsType<RecordType = AnyObject> = ColumnsType<RecordType
 export type EditableCellInputTypeString = "number" | "text" | "credential" | "textarea" | "options";
 
 export type EditableCellInputTypeObject<RecordType = AnyObject, Props = any> = {
-  name: EditableCellInputTypeString,
-  props: Props | ((value: any, record: RecordType, index: number) => Props);
+  name: EditableCellInputTypeString;
+  props: Props;
 };
 
 export type EditableCellInputType = EditableCellInputTypeString | EditableCellInputTypeObject;
@@ -63,11 +63,7 @@ export default function EditableCell<RecordType extends AnyObject>({
     let inputProps: any;
     if (typeof inputType === "object") {
       inputTypeName = inputType.name;
-      if (typeof inputType.props === "function") {
-        inputProps = inputType.props(record[dataIndex], record, index);
-      } else {
-        inputProps = inputType.props;
-      }
+      inputProps = inputType.props;
     } else {
       inputTypeName = inputType;
     }
@@ -82,14 +78,13 @@ export default function EditableCell<RecordType extends AnyObject>({
         return <Input {...inputProps} />;
     }
   }, [editing, inputType]);
-
   return (
     <td {...restProps}>
       {
         editing
         ?
         (
-          record.id === -1 && inputType === "credential"
+          !record.id && inputType === "credential"
           ?
           <>
             <FormItem
@@ -113,7 +108,7 @@ export default function EditableCell<RecordType extends AnyObject>({
           </>
           :
           <FormItem
-            name={dataIndex}
+            name={(typeof inputType === "object" && inputType.props?.name) || dataIndex}
             style={{ margin: 0 }}
             rules={rules}
           >
@@ -127,7 +122,7 @@ export default function EditableCell<RecordType extends AnyObject>({
   );
 }
 
-export type GetEditableColumnComponentProps<RecordType = AnyObject> = (value: any, record: RecordType, index?: number, column?: EditableColumnType<RecordType>) => EditableBaseCellProps;
+export type GetEditableColumnComponentProps<RecordType = AnyObject> = (value: any, record: RecordType, column: EditableColumnType<RecordType>, index?: number) => EditableBaseCellProps;
 
 export function wrapColumns<RecordType extends AnyObject>(columns: EditableColumnsType<RecordType>, mapping: GetEditableColumnComponentProps<RecordType>): EditableColumnsType<RecordType> {
   return columns.map((col: EditableColumnType<RecordType>) => {
@@ -141,7 +136,7 @@ export function wrapColumns<RecordType extends AnyObject>(columns: EditableColum
         dataIndex: col.dataIndex,
         title: col.title,
         rules: col.rules,
-        ...mapping(record[col.dataIndex as string], record, index, col)
+        ...mapping(record[col.dataIndex as string], record, col, index)
       }),
     };
   }) as EditableColumnsType<RecordType>;

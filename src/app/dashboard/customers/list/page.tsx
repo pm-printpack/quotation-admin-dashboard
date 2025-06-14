@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Text from "antd/es/typography/Text";
 import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
 import DoubleCheckedButton from "@/components/DoubleCheckedButton";
-import { addRecord, Customer, deleteAddingRecord, deleteCustomer, fetchCustomers, UpdatedOrCreatCustomerByForm, updateOrCreatCustomer } from "@/lib/features/customers.slice";
+import { addRecord, createCustomer, Customer, deleteAddingRecord, deleteCustomer, fetchCustomers, NewCustomer, updateCustomer, UpdatedCustomer } from "@/lib/features/customers.slice";
 import { CustomerTier, fetchCustomerTiers } from "@/lib/features/customer-tiers.slice";
 import EditableTable from "@/components/table/EditableTable";
 import { EditableColumnsType } from "@/components/table/EditableCell";
@@ -23,21 +23,28 @@ export default function CustomerListPage() {
     setEditingId(-1);
   }, [dispatch, setEditingId]);
 
+  const onNewSubmit = useCallback(async(record: NewCustomer) => {
+    await dispatch(createCustomer(record)).unwrap();
+    setEditingId(NaN);
+  }, [dispatch, setEditingId]);
+
+  const onNewCancel = useCallback(() => {
+    dispatch(deleteAddingRecord());
+    setEditingId(NaN);
+  }, [dispatch, setEditingId]);
+
   const onEdit = useCallback((id: number) => {
     return () => {
       setEditingId(id);
     }
   }, [setEditingId]);
 
-  const onEditSubmit = useCallback(async (record: UpdatedOrCreatCustomerByForm | undefined | null, preRecord: Customer) => {
-    if (record) {
-      await dispatch(updateOrCreatCustomer({id: preRecord.id, customer: record})).unwrap();
-      setEditingId(NaN);
-    }
+  const onEditSubmit = useCallback(async (record: UpdatedCustomer, preRecord: Customer) => {
+    await dispatch(updateCustomer({customer: record, preCustomer: preRecord})).unwrap();
+    setEditingId(NaN);
   }, [dispatch, setEditingId]);
 
   const onEditCancel = useCallback(() => {
-    dispatch(deleteAddingRecord());
     setEditingId(NaN);
   }, [dispatch, setEditingId]);
 
@@ -132,15 +139,14 @@ export default function CustomerListPage() {
       width: "9%",
       type: {
         name: "options",
-        props: (tier: CustomerTier) => {
-          return ({
-            fieldNames: {
-              value: "id",
-              label: "name"
-            },
-            options: customerTiers
-          } as SelectProps);
-        }
+        props: {
+          name: "tierId",
+          fieldNames: {
+            value: "id",
+            label: "name"
+          },
+          options: customerTiers
+        } as SelectProps
       },
       editable: true,
       rules: [
@@ -149,7 +155,7 @@ export default function CustomerListPage() {
           message: "请选择客户等级!"
         }
       ],
-      render: (tier: CustomerTier) => <Text>{tier.name}</Text>
+      render: (tier?: CustomerTier) => <Text>{tier?.name}</Text>
     },
     {
       title: "操作",
@@ -157,9 +163,15 @@ export default function CustomerListPage() {
       type: "operation",
       render: (_, record: Customer) => (
         <Space size="middle">
-          <Tooltip title={`修改客户（${record.name}）的信息`}>
-            <Button type="text" shape="circle" size="middle" disabled={!!editingId} icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
-          </Tooltip>
+          {
+            !!editingId
+            ?
+            <Button type="text" shape="circle" size="middle" disabled={true} icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
+            :
+            <Tooltip title={`修改客户（${record.name}）的信息`}>
+              <Button type="text" shape="circle" size="middle" icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
+            </Tooltip>
+          }
           <DoubleCheckedButton
             buttonProps={{
               type: "text",
@@ -169,9 +181,15 @@ export default function CustomerListPage() {
               danger: true,
               disabled: !!editingId
             }}
-            tooltipProps={{
-              title: `删除客户（${record.name}）`
-            }}
+            tooltipProps={
+              !!editingId
+              ?
+              undefined
+              :
+              {
+                title: `删除客户（${record.name}）`
+              }
+            }
             popconfirmProps={{
               title: `删除（${record.name}）`,
               description: `你确定想删除客户（${record.name}）吗？`,
@@ -184,15 +202,17 @@ export default function CustomerListPage() {
         </Space>
       ),
     }
-  ], [editingId, customerTiers]);
+  ], [editingId, customerTiers.map(({id}) => id).join(","), onEdit, onDelete]);
 
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>
       <Flex vertical={false} justify="flex-end">
         <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>添加新客户</Button>
       </Flex>
-      <EditableTable<Customer, UpdatedOrCreatCustomerByForm>
+      <EditableTable<Customer, NewCustomer, UpdatedCustomer>
         editingId={editingId}
+        onNewSubmit={onNewSubmit}
+        onNewCancel={onNewCancel}
         onEditSubmit={onEditSubmit}
         onEditCancel={onEditCancel}
         columns={columns}

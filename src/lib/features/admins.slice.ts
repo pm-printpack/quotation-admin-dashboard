@@ -4,13 +4,13 @@ import { ActionReducerMapBuilder, PayloadAction, SerializedError, createAsyncThu
 const { get, post, put, delete: deleteFn } = useRequest();
 
 export type NewAdmin = {
-  id: number;
   username: string;
   password: string;
   name: string;
 };
 
 export interface Admin extends Omit<NewAdmin, "password"> {
+  id: number;
   createdAt: Date;
 };
 
@@ -35,28 +35,23 @@ export const fetchAdmins = createAsyncThunk<Admin[], void>(
   }
 );
 
-export type UpdateOrCreatAdminByForm = Partial<Admin> | NewAdmin;
+export const createAdmin = createAsyncThunk<void, NewAdmin>(
+  "admins/create",
+  async (admin: NewAdmin, {dispatch}): Promise<void> => {
+    const {error} = await post<NewAdmin>("/admins", admin);
+    if (error) {
+      throw error;
+    }
+    dispatch(fetchAdmins());
+  }
+);
 
-type UpdateOrCreatAdminParams = {
-  id: number;
-  admin: UpdateOrCreatAdminByForm;
-};
-
-export const updateOrCreatAdmin = createAsyncThunk<void, UpdateOrCreatAdminParams>(
-  "admins/updateOrCreat",
-  async ({id, admin}: UpdateOrCreatAdminParams, {dispatch}): Promise<void> => {
-    if (id === -1) {
-      const {id, ...newAdmin} = admin as NewAdmin;
-      const {error} = await post<Omit<NewAdmin, "id">>("/admins", newAdmin);
-      if (error) {
-        throw error;
-      }
-      dispatch(fetchAdmins());
-    } else {
-      const {error} = await put<Partial<Admin>>(`/admins/${id}`, admin);
-      if (error) {
-        throw error;
-      }
+export const updateAdmin = createAsyncThunk<void, Admin>(
+  "admins/update",
+  async ({id, ...admin}: Admin): Promise<void> => {
+    const {error} = await put<Partial<Admin>>(`/admins/${id}`, admin);
+    if (error) {
+      throw error;
     }
   }
 );
@@ -78,7 +73,6 @@ export const adminsSlice = createSlice({
     addRecord: (state: AdminsState) => {
       state.list = [
         {
-          id: -1,
           username: "",
           password: "",
           name: ""
@@ -87,7 +81,7 @@ export const adminsSlice = createSlice({
       ];
     },
     deleteAddingRecord: (state: AdminsState) => {
-      const index: number = state.list.findIndex((item: Admin) => item.id === -1);
+      const index: number = state.list.findIndex((item: Admin | NewAdmin) => !item.hasOwnProperty("id"));
       if (index !== -1) {
         state.list.splice(index, 1);
         state.list = [...state.list];
@@ -95,13 +89,11 @@ export const adminsSlice = createSlice({
     }
   },
   extraReducers: (builder: ActionReducerMapBuilder<AdminsState>) => {
-    [fetchAdmins.pending, updateOrCreatAdmin.pending, deleteAdmin.pending].forEach((asyncPendingAction) => {
-      builder.addCase(asyncPendingAction, (state: AdminsState) => {
+    [fetchAdmins, createAdmin, updateAdmin, deleteAdmin].forEach((asyncThunk) => {
+      builder.addCase(asyncThunk.pending, (state: AdminsState) => {
         state.loading = true;
       });
-    });
-    [fetchAdmins.rejected, updateOrCreatAdmin.rejected, deleteAdmin.rejected].forEach((asyncRejectedAction) => {
-      builder.addCase(asyncRejectedAction, (state: AdminsState, action: PayloadAction<unknown, string, unknown, SerializedError>) => {
+      builder.addCase(asyncThunk.rejected, (state: AdminsState, action: PayloadAction<unknown, string, unknown, SerializedError>) => {
         console.error("admins slice error: ", action.error);
         state.loading = false;
       });
@@ -110,8 +102,8 @@ export const adminsSlice = createSlice({
       state.list = action.payload;
       state.loading = false;
     });
-    builder.addCase(updateOrCreatAdmin.fulfilled, (state: AdminsState, action: PayloadAction<void, string, {arg: UpdateOrCreatAdminParams}>) => {
-      const {id, admin}: UpdateOrCreatAdminParams = action.meta.arg;
+    builder.addCase(updateAdmin.fulfilled, (state: AdminsState, action: PayloadAction<void, string, {arg: Admin}>) => {
+      const {id, ...admin}: Admin = action.meta.arg;
       const targetIndex: number = state.list.findIndex((item: Admin) => item.id === id);
       if (targetIndex > -1) { // targeted
         state.list[targetIndex] = {

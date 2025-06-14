@@ -4,7 +4,7 @@ import { RootState } from "@/lib/store";
 import { Checkbox, CheckboxChangeEvent, Table } from "antd";
 import { useCallback, useEffect, useMemo } from "react";
 import Text from "antd/es/typography/Text";
-import { Material, MaterialDisplay, fetchMaterials, updateMaterialDisplay, updateOrCreatMaterial } from "@/lib/features/materials.slice";
+import { Material, MaterialDisplay, fetchMaterials, updateMaterialDisplay } from "@/lib/features/materials.slice";
 import { ColumnsType } from "antd/es/table";
 
 export default function MaterialDisplayControllerPage() {
