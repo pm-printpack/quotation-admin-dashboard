@@ -38,7 +38,7 @@ export default function MaterialListPage() {
   }, [setEditingId]);
 
   const onEditSubmit = useCallback(async(record: UpdatedMaterial, preRecord: Material) => {
-    await dispatch(updateMaterial({material: record as UpdatedMaterial, preMaterial: preRecord})).unwrap();
+    await dispatch(updateMaterial({material: record, preMaterial: preRecord})).unwrap();
     setEditingId(NaN);
   }, [dispatch, setEditingId]);
   

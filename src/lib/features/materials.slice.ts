@@ -104,23 +104,28 @@ type UpdatedMaterialParams = {
   preMaterial: Material;
 };
 
-export const updateMaterial = createAsyncThunk<void, UpdatedMaterialParams>(
+export const updateMaterial = createAsyncThunk<Partial<Material>, UpdatedMaterialParams>(
   "materials/update",
-  async ({material, preMaterial}: UpdatedMaterialParams): Promise<void> => {
+  async ({material, preMaterial}: UpdatedMaterialParams): Promise<Partial<Material>> => {
     const {id, ...updatedMaterial} = material;
     const updatedWholeMaterial: Material = {
       ...preMaterial,
       ...material
     };
     const weightPerCm2: number = Number((updatedWholeMaterial.density * updatedWholeMaterial.thickness / 10000).toFixed(3));
-    const {error} = await patch<Partial<Material>>(`/materials/${id}`, {
+    const data: Partial<Material> = {
       ...updatedMaterial,
       weightPerCm2: weightPerCm2,
       unitPricePerSquareMeter: Number((weightPerCm2 * updatedWholeMaterial.unitPricePerKg * 10).toFixed(2))
-    });
+    };
+    const {error} = await patch<Partial<Material>>(`/materials/${id}`, data);
     if (error) {
       throw error;
     }
+    return {
+      id: id,
+      ...data
+    };
   }
 );
 
@@ -191,8 +196,8 @@ export const materialsSlice = createSlice({
       state.list = action.payload;
       state.loading = false;
     });
-    builder.addCase(updateMaterial.fulfilled, (state: MaterialsState, action: PayloadAction<void, string, {arg: UpdatedMaterialParams}>) => {
-      const {material}: UpdatedMaterialParams = action.meta.arg;
+    builder.addCase(updateMaterial.fulfilled, (state: MaterialsState, action: PayloadAction<Partial<Material>, string, {arg: UpdatedMaterialParams}>) => {
+      const material: Partial<Material> = action.payload;
       const targetIndex: number = state.list.findIndex((item: Material) => item.id === material.id);
       if (targetIndex > -1) { // targeted
         state.list[targetIndex] = {
