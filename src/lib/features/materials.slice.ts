@@ -112,11 +112,11 @@ export const updateMaterial = createAsyncThunk<Partial<Material>, UpdatedMateria
       ...preMaterial,
       ...material
     };
-    const weightPerCm2: number = Number((updatedWholeMaterial.density * updatedWholeMaterial.thickness / 10000).toFixed(3));
+    const weightPerCm2: number = updatedWholeMaterial.density * updatedWholeMaterial.thickness / 10000;
     const data: Partial<Material> = {
       ...updatedMaterial,
       weightPerCm2: weightPerCm2,
-      unitPricePerSquareMeter: Number((weightPerCm2 * updatedWholeMaterial.unitPricePerKg * 10).toFixed(2))
+      unitPricePerSquareMeter: weightPerCm2 * updatedWholeMaterial.unitPricePerKg * 10
     };
     const {error} = await patch<Partial<Material>>(`/materials/${id}`, data);
     if (error) {
