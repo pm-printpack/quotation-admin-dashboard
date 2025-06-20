@@ -85,10 +85,11 @@ export const fetchMaterials = createAsyncThunk<Material[], void>(
 export const createMaterial = createAsyncThunk<void, NewMaterial>(
   "materials/create",
   async (material: NewMaterial, {dispatch}): Promise<void> => {
+    const weightPerCm2: number = material.density * material.thickness / 10000;
     const {error} = await post<NewMaterial>("/materials", {
       ...material,
-      weightPerCm2: Number((material.thickness / 10000).toFixed(3)),
-      unitPricePerSquareMeter: Number(((material.thickness / 10000) * material.unitPricePerKg * 10).toFixed(2))
+      weightPerCm2: weightPerCm2,
+      unitPricePerSquareMeter: weightPerCm2 * material.unitPricePerKg * 10
     });
     if (error) {
       throw error;

@@ -136,7 +136,7 @@ export default function MaterialListPage() {
       dataIndex: "weightPerCm2",
       width: "11%",
       align: "right",
-      render: (text: number) => <Text>{text}</Text>
+      render: (text: number) => <Text>{Number(text.toFixed(6))}</Text>
     },
     {
       title: <span>重量单价<br/>（元/kg）</span>,
@@ -166,7 +166,7 @@ export default function MaterialListPage() {
       dataIndex: "unitPricePerSquareMeter",
       width: "11%",
       align: "right",
-      render: (text: number) => <Text>{text}</Text>
+      render: (text: number) => <Text>{Number(text.toFixed(4))}</Text>
     },
     {
       title: "备注",
