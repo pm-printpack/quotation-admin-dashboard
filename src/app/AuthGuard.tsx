@@ -29,7 +29,7 @@ export default function AuthGuard({ children }: PropsWithChildren) {
 
   useEffect(() => {
     const token: string | null = localStorage.getItem("jwtToken");
-    const isLoginPage = pathname === "/login/";
+    const isLoginPage = pathname === "/login";
     let isValid: boolean = false;
 
     if (token) {
@@ -45,10 +45,10 @@ export default function AuthGuard({ children }: PropsWithChildren) {
 
     if (!isValid && !isLoginPage) {
       // no valid token and not already on login
-      router.replace("/login/")
+      router.replace("/login")
     } else if (isValid && isLoginPage) {
       // already authenticated but on login page
-      router.replace("/dashboard/");
+      router.replace("/dashboard");
       dispatch(setAuthenticated(true));
     } else {
       // OK to render the children

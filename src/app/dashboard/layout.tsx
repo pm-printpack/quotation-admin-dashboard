@@ -35,10 +35,10 @@ export default function DashboardLayout({children}: PropsWithChildren) {
 
   const menuItems: ItemType<MenuItemType>[] = useMemo(() => [
     getItem("Home", "/", <BarChartOutlined />),
-    getItem("材料管理", "/materials/", <BuildOutlined />),
-    getItem("客户管理", "/customers/", <UserOutlined />),
-    getItem("系统管理员", "/admins/", <AuditOutlined />),
-    getItem("系统设置", "/settings/", <SettingOutlined />)
+    getItem("材料管理", "/materials", <BuildOutlined />),
+    getItem("客户管理", "/customers", <UserOutlined />),
+    getItem("系统管理员", "/admins", <AuditOutlined />),
+    getItem("系统设置", "/settings", <SettingOutlined />)
   ], [getItem]);
 
   const onMenuSelect = useCallback((info: SelectInfo) => {
