@@ -14,20 +14,13 @@ import styles from "./page.module.css";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-declare module "antd-style" {
-  export interface CustomToken {
-    antCls: string;
-  }
-}
-
-const useStyle = createStyles(({ css, token }) => {
-  const { antCls } = token;
+const useStyle = createStyles(({ css, prefixCls }) => {
   return {
     customTable: css`
-      ${antCls}-table {
-        ${antCls}-table-container {
-          ${antCls}-table-body,
-          ${antCls}-table-content {
+      ${prefixCls}-table {
+        ${prefixCls}-table-container {
+          ${prefixCls}-table-body,
+          ${prefixCls}-table-content {
             scrollbar-width: thin;
             scrollbar-color: #eaeaea transparent;
             scrollbar-gutter: stable;
