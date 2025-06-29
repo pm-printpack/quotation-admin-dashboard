@@ -5,6 +5,7 @@ import customersReducer from "./features/customers.slice";
 import customerTiersReducer from "./features/customer-tiers.slice";
 import materialsReducer from "./features/materials.slice";
 import exchangeReducer from "./features/exchange.slice";
+import quotationHistoriesReducer from "./features/quotation-histories.slice";
 
 export const makeStore = () => {
   return configureStore({
@@ -14,7 +15,8 @@ export const makeStore = () => {
       customers: customersReducer,
       customerTiers: customerTiersReducer,
       materials: materialsReducer,
-      exchange: exchangeReducer
+      exchange: exchangeReducer,
+      quotationHistories: quotationHistoriesReducer
     }
   })
 }
