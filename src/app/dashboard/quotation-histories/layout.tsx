@@ -5,7 +5,7 @@ import Title from "antd/es/typography/Title";
 import { PropsWithChildren } from "react";
 import styles from "./layout.module.css";
 
-export default function AdminsLayout({children}: PropsWithChildren) {
+export default function QuotationHistoriesLayout({children}: PropsWithChildren) {
   const { token: { colorBgContainer } } = theme.useToken();
   return (
     <Layout className={styles.layoutContainer}>

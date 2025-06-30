@@ -2,30 +2,9 @@ import { ActionReducerMapBuilder, createAsyncThunk, createSlice, PayloadAction, 
 import { Customer } from "./customers.slice";
 import { useRequest } from "@/hooks/useRequest";
 import { Material } from "./materials.slice";
+import { CategorySuboption, PrintingType, ProductSubcategory } from "./categories.slice";
 
 const {get} = useRequest();
-
-interface Category{
-  id: number;
-  name: string;
-  chineseName: string;
-  createdAt: Date;
-};
-
-export interface ProductSubcategory extends Category {
-  hasGusset: boolean;
-  isVisible: boolean;
-}
-
-export interface CategorySuboption extends Category {
-  /**
-   * Unit Price per Square Meter
-   * CNY/m²
-   */
-  unitPricePerSquareMeter: number;
-}
-
-export interface PrintingType extends Category {}
 
 export interface DigitalPrintingQuotationHistory {
   /**
@@ -143,7 +122,7 @@ export interface QuotationHistory {
    */
   totalQuantity: string;
 
-  categorySuboptions: CategorySuboption[];
+  // categorySuboptions: CategorySuboption[];
   
   materials: Material[];
 

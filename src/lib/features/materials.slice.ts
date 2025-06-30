@@ -1,12 +1,10 @@
 import { useRequest } from "@/hooks/useRequest";
 import { ActionReducerMapBuilder, PayloadAction, SerializedError, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { Category, CategoryOption, NewCategory, PrintingType } from "./categories.slice";
 
 const { get, post, patch, delete: deleteFn } = useRequest();
 
-export type NewMaterial = {
-  name: string;
-  chineseName: string;
-
+export interface NewMaterial extends NewCategory {
   /**
    * Density of material
    * Unit is g/cm³
@@ -40,22 +38,14 @@ export type NewMaterial = {
   remarks: string;
 };
 
-export interface Material extends NewMaterial {
-  id: number;
+export interface Material extends NewMaterial, Category {
   displays: MaterialDisplay[];
-  createdAt: Date;
-};
-
-type Category = {
-  id: number;
-  name: string;
-  chineseName: string;
 };
 
 export interface MaterialDisplay {
   id: number;
-  categoryPrintingType: Category;
-  categoryOption: Category;
+  categoryPrintingType: PrintingType;
+  categoryOption: CategoryOption;
   material: Material
   isActive: boolean;
   index: number;

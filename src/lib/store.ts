@@ -3,6 +3,7 @@ import authReducer from "./features/auth.slice";
 import adminsReducer from "./features/admins.slice";
 import customersReducer from "./features/customers.slice";
 import customerTiersReducer from "./features/customer-tiers.slice";
+import categoriesReducer from "./features/categories.slice";
 import materialsReducer from "./features/materials.slice";
 import exchangeReducer from "./features/exchange.slice";
 import quotationHistoriesReducer from "./features/quotation-histories.slice";
@@ -14,6 +15,7 @@ export const makeStore = () => {
       admins: adminsReducer,
       customers: customersReducer,
       customerTiers: customerTiersReducer,
+      categories: categoriesReducer,
       materials: materialsReducer,
       exchange: exchangeReducer,
       quotationHistories: quotationHistoriesReducer
