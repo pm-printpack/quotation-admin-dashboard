@@ -1,8 +1,8 @@
 import { ActionReducerMapBuilder, createAsyncThunk, createSlice, PayloadAction, SerializedError } from "@reduxjs/toolkit";
 import { Customer } from "./customers.slice";
 import { useRequest } from "@/hooks/useRequest";
-import { Material } from "./materials.slice";
-import { CategorySuboption, PrintingType, ProductSubcategory } from "./categories.slice";
+import { MaterialDisplay } from "./materials.slice";
+import { CategoryPrintingType, CategoryProductSubcategory, CategoryAllMapping } from "./categories.slice";
 
 const {get} = useRequest();
 
@@ -100,8 +100,8 @@ export interface GravurePrintingQuotationHistory {
 export interface QuotationHistory {
   id: number;
   customer: Customer;
-  categoryProductSubcategory: ProductSubcategory;
-  categoryPrintingType: PrintingType;
+  categoryProductSubcategory: CategoryProductSubcategory;
+  categoryPrintingType: CategoryPrintingType;
 
   width: string;
   height: string;
@@ -122,9 +122,9 @@ export interface QuotationHistory {
    */
   totalQuantity: string;
 
-  // categorySuboptions: CategorySuboption[];
-  
-  materials: Material[];
+  categoryAllMappings: CategoryAllMapping[];
+
+  materialDisplays: MaterialDisplay[];
 
   /**
    * 成本总价（元）
@@ -206,10 +206,9 @@ interface QuotationHistoriesState {
 }
 
 interface PaginationOnQuotationHistoriesData {
-  items: QuotationHistory[];
+  data: QuotationHistory[];
   meta: {
     currentPage: number;
-    itemCount: number;
     itemsPerPage: number;
     totalItems: number;
     totalPages: number;
@@ -231,9 +230,8 @@ export const fetchQuotationHistories = createAsyncThunk<PaginationOnQuotationHis
     if (error) {
       throw error;
     }
-    return data || {items:[], meta: {
+    return data || {data:[], meta: {
       currentPage: page,
-      itemCount: 0,
       itemsPerPage: limit,
       totalItems: 0,
       totalPages: page
@@ -257,8 +255,8 @@ export const quotationHistoriesSlice = createSlice({
       });
     });
     builder.addCase(fetchQuotationHistories.fulfilled, (state: QuotationHistoriesState, action: PayloadAction<PaginationOnQuotationHistoriesData>) => {
-      const {items, meta} = action.payload;
-      state.list = items;
+      const {data, meta} = action.payload;
+      state.list = data;
       state.totalItems = meta.totalItems;
       state.currentPage = meta.currentPage;
       state.loading = false;

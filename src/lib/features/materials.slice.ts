@@ -1,6 +1,6 @@
 import { useRequest } from "@/hooks/useRequest";
 import { ActionReducerMapBuilder, PayloadAction, SerializedError, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { Category, CategoryOption, NewCategory, PrintingType } from "./categories.slice";
+import { Category, CategoryOption, NewCategory, CategoryPrintingType } from "./categories.slice";
 
 const { get, post, patch, delete: deleteFn } = useRequest();
 
@@ -44,20 +44,29 @@ export interface Material extends NewMaterial, Category {
 
 export interface MaterialDisplay {
   id: number;
-  categoryPrintingType: PrintingType;
-  categoryOption: CategoryOption;
+  categoryPrintingType?: CategoryPrintingType;
+  categoryPrintingTypeId: number;
+  categoryOption?: CategoryOption;
+  categoryOptionId: number;
   material: Material
   isActive: boolean;
   index: number;
 }
 
+export interface MaxMaterialDisplayByCategoryOption {
+  categoryOptionId: number;
+  index: number;
+}
+
 interface MaterialsState {
   list: Material[];
+  maxDisplays: MaxMaterialDisplayByCategoryOption[];
   loading: boolean;
 }
 
 const initialState: MaterialsState = {
   list: [],
+  maxDisplays: [],
   loading: false
 };
 
@@ -65,6 +74,17 @@ export const fetchMaterials = createAsyncThunk<Material[], void>(
   "materials/list",
   async (): Promise<Material[]> => {
     const {data, error} = await get<{}, Material[]>("/materials");
+    if (error) {
+      throw error;
+    }
+    return data || [];
+  }
+);
+
+export const fetchMaxDisplayIndexByCategoryOptionIds = createAsyncThunk<MaxMaterialDisplayByCategoryOption[], number[]>(
+  "materials/maxDisplays",
+  async (categoryOptionIds: number[]): Promise<MaxMaterialDisplayByCategoryOption[]> => {
+    const {data, error} = await get<{categoryOptionIds: number[]}, MaxMaterialDisplayByCategoryOption[]>("/materials/material-max-index", {categoryOptionIds: categoryOptionIds});
     if (error) {
       throw error;
     }
@@ -174,7 +194,7 @@ export const materialsSlice = createSlice({
     }
   },
   extraReducers: (builder: ActionReducerMapBuilder<MaterialsState>) => {
-    [fetchMaterials, createMaterial, updateMaterial, updateMaterialDisplay, deleteMaterial].forEach((asyncThunk) => {
+    [fetchMaxDisplayIndexByCategoryOptionIds, fetchMaterials, createMaterial, updateMaterial, updateMaterialDisplay, deleteMaterial].forEach((asyncThunk) => {
       builder.addCase(asyncThunk.pending, (state: MaterialsState) => {
         state.loading = true;
       });
@@ -182,6 +202,10 @@ export const materialsSlice = createSlice({
         console.error("materials slice error: ", action.error);
         state.loading = false;
       });
+    });
+    builder.addCase(fetchMaxDisplayIndexByCategoryOptionIds.fulfilled, (state: MaterialsState, action: PayloadAction<MaxMaterialDisplayByCategoryOption[]>) => {
+      state.maxDisplays = action.payload;
+      state.loading = false;
     });
     builder.addCase(fetchMaterials.fulfilled, (state: MaterialsState, action: PayloadAction<Material[]>) => {
       state.list = action.payload;

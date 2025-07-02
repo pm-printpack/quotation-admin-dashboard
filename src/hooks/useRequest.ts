@@ -1,6 +1,6 @@
 import { message } from "antd";
 import axios, { AxiosRequestConfig, AxiosResponse, isAxiosError } from "axios";
-import queryString from "query-string";
+import qs from "qs";
 
 type ResponseBody<ResponseDataType = Record<string, any>> = {
   readonly statusCode: number;
@@ -19,9 +19,21 @@ async function request<RequestDataType = any, ResponseDataType = Record<string, 
     if (!token && !/\/login$/.test(path)) {
       throw new Error("Unauthorized");
     }
+    console.log((method.toLowerCase() === "get" ? {params: data} : {data: data}));
     const { data: responseData }: AxiosResponse<ResponseBody<ResponseDataType>, RequestDataType> = await axios({
       url: `${process.env.NEXT_PUBLIC_API_BASE}${path}`,
-      data: data,
+      ...(
+        method.toLowerCase() === "get"
+        ?
+        {
+          params: data,
+          paramsSerializer: function (params) {
+            return qs.stringify(params, {arrayFormat: "comma"})
+          }
+        }
+        :
+        {data: data}
+      ),
       headers: {
         ...(token ? {"Authorization": `Bearer ${token}`} : {}),
         "Content-Type": "application/json",
@@ -56,8 +68,8 @@ async function request<RequestDataType = any, ResponseDataType = Record<string, 
   }
 }
 
-function _get<RequestDataType extends Record<string, any>, ResponseDataType extends Record<string, any>>(path: string, data?: RequestDataType, requestConfig?: AxiosRequestConfig<string>) {
-  return request<string, ResponseDataType>("GET", path, data ? queryString.stringify(data) : undefined, requestConfig);
+function _get<RequestDataType extends Record<string, any>, ResponseDataType extends Record<string, any>>(path: string, data?: RequestDataType, requestConfig?: AxiosRequestConfig<RequestDataType>) {
+  return request<RequestDataType, ResponseDataType>("GET", path, data, requestConfig);
 }
 
 function _post<RequestDataType = any, ResponseDataType = Record<string, any>>(path: string, data?: RequestDataType, requestConfig?: AxiosRequestConfig<RequestDataType>) {

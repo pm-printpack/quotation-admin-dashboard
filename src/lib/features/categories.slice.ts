@@ -1,5 +1,6 @@
 import { useRequest } from "@/hooks/useRequest";
 import { ActionReducerMapBuilder, createAsyncThunk, createSlice, PayloadAction, SerializedError } from "@reduxjs/toolkit";
+import { QuotationHistory } from "./quotation-histories.slice";
 
 const { get } = useRequest();
 
@@ -13,7 +14,7 @@ export interface Category extends NewCategory {
   createdAt: Date;
 };
 
-export interface ProductSubcategory extends Category {
+export interface CategoryProductSubcategory extends Category {
   hasGusset: boolean;
   isVisible: boolean;
 }
@@ -26,11 +27,28 @@ export interface CategorySuboption extends Category {
   unitPricePerSquareMeter: number;
 }
 
-export interface PrintingType extends Category {}
+export interface CategoryPrintingType extends Category {}
 
 export interface CategoryOption extends Category {
   isMaterial: boolean;
   isRequired: boolean;
+}
+
+export interface CategoryOptionWithIndex extends CategoryOption {
+  index: number;
+}
+
+export interface CategoryAllMapping {
+  id: number;
+  categoryProductSubcategoryId: number;
+  categoryProductSubcategory?: CategoryProductSubcategory;
+  categoryPrintingTypeId: number;
+  categoryPrintingType?: CategoryPrintingType;
+  categoryOptionId: number;
+  categoryOption?: CategoryOption;
+  categorySuboptionId: number;
+  categorySuboption?: CategorySuboption;
+  quotationHistories?: QuotationHistory[];
 }
 
 interface CategoriesState {

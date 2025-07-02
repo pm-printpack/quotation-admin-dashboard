@@ -10,8 +10,8 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import pageStyles from "./page.module.css";
-import { CategoryOption, fetchCategoryOptions, PrintingType, ProductSubcategory } from "@/lib/features/categories.slice";
-import { fetchMaterials, Material } from "@/lib/features/materials.slice";
+import { CategoryOption, fetchCategoryOptions, CategoryPrintingType, CategoryProductSubcategory, CategoryAllMapping, CategoryOptionWithIndex } from "@/lib/features/categories.slice";
+import { fetchMaxDisplayIndexByCategoryOptionIds, Material, MaterialDisplay, MaxMaterialDisplayByCategoryOption } from "@/lib/features/materials.slice";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -36,7 +36,7 @@ const useStyle = createStyles(({ css, prefixCls }) => {
 export default function QuotationHistoriesPage() {
   const dispatch = useAppDispatch();
   const categoryOptions: CategoryOption[] = useAppSelector((state: RootState) => state.categories.categoryOptions);
-  const materials: Material[] = useAppSelector((state: RootState) => state.materials.list);
+  const maxMaterialDisplayByCategoryOptions: MaxMaterialDisplayByCategoryOption[] = useAppSelector((state: RootState) => state.materials.maxDisplays);
   const list: QuotationHistory[] = useAppSelector((state: RootState) => state.quotationHistories.list);
   const totalItems: number = useAppSelector((state: RootState) => state.quotationHistories.totalItems);
   const currentPage: number = useAppSelector((state: RootState) => state.quotationHistories.currentPage);
@@ -68,19 +68,31 @@ export default function QuotationHistoriesPage() {
     },
     {
       title: "袋型",
-      width: 100,
+      width: 125,
       fixed: "left",
       dataIndex: "categoryProductSubcategory",
       key: "categoryProductSubcategory",
-      render: (categoryProductSubcategory: ProductSubcategory) => `${ categoryProductSubcategory.chineseName }(${categoryProductSubcategory.name})`
+      render: (categoryProductSubcategory: CategoryProductSubcategory) => (
+        <>
+          <span>{ categoryProductSubcategory.chineseName }</span>
+          <br />
+          <span className={pageStyles.hintStyle}>({categoryProductSubcategory.name})</span>
+        </>
+      )
     },
     {
       title: "印刷方式",
-      width: 100,
+      width: 120,
       fixed: "left",
       dataIndex: "categoryPrintingType",
       key: "categoryPrintingType",
-      render: (categoryPrintingType: PrintingType) => `${ categoryPrintingType.chineseName }(${categoryPrintingType.name})`
+      render: (categoryPrintingType: CategoryPrintingType) => (
+        <>
+          <span>{ categoryPrintingType.chineseName }</span>
+          <br />
+          <span className={pageStyles.hintStyle}>({categoryPrintingType.name})</span>
+        </>
+      )
     },
     {
       title: "宽",
@@ -124,18 +136,56 @@ export default function QuotationHistoriesPage() {
       render: (value: string) => new Intl.NumberFormat().format(Number(value))
     },
     ...(
-      categoryOptions.map((categoryOption: CategoryOption): TableColumnType<QuotationHistory> => ({
-        title: categoryOption.chineseName,
-        key: `categoryOption-${categoryOption.id}`,
-        render: (_, record: QuotationHistory) => {
-          // if (categoryOption.isMaterial) {
-
-          // } else {
-          //   record.categorySuboptions
-          // }
-          return "";
-        }
-      }))
+      categoryOptions
+        .filter(({name}) => name.toLowerCase() !== "bag out direction")
+        .map((categoryOption: CategoryOption, index: number) => {
+          const maxMaterialDisplayByCategoryOption: MaxMaterialDisplayByCategoryOption | undefined = maxMaterialDisplayByCategoryOptions.find(({categoryOptionId}) => categoryOptionId === categoryOption.id);
+          if (maxMaterialDisplayByCategoryOption && maxMaterialDisplayByCategoryOption.index > 0) { // multiple-layer
+            return Array.from(new Array(maxMaterialDisplayByCategoryOption.index + 1)).map((_, index: number): CategoryOptionWithIndex => ({
+              ...categoryOption,
+              chineseName: `${categoryOption.chineseName} ${index + 1}`,
+              name: `${categoryOption.name} ${index + 1}`,
+              index: index
+            }));
+          }
+          return categoryOption;
+        })
+        .flat()
+        .map((categoryOption: CategoryOption, index: number): TableColumnType<QuotationHistory> => ({
+          title: categoryOption.chineseName,
+          key: `categoryOption-${categoryOption.id}-${index}`,
+          render: (_, record: QuotationHistory) => {
+            if (categoryOption.isMaterial) {
+              for (const materialDisplay of record.materialDisplays) {
+                if (materialDisplay.categoryOptionId === categoryOption.id
+                    && materialDisplay.categoryPrintingTypeId === record.categoryPrintingType.id
+                    && materialDisplay.index === ((categoryOption as CategoryOptionWithIndex).index || 0)
+                ) {
+                  return (
+                    <>
+                      <span>{ materialDisplay.material.chineseName }</span>
+                      <br />
+                      <span className={pageStyles.hintStyle}>({materialDisplay.material.name})</span>
+                    </>
+                  );
+                }
+              }
+              return "-";
+            } else {
+              const categoryAllMapping: CategoryAllMapping | undefined = record.categoryAllMappings.find((mapping) => mapping.categoryOption?.id === categoryOption.id)
+              if (categoryAllMapping && categoryAllMapping.categorySuboption) {
+                return (
+                  <>
+                    <span>{ categoryAllMapping.categorySuboption.chineseName }</span>
+                    <br />
+                    <span className={pageStyles.hintStyle}>({categoryAllMapping.categorySuboption.name})</span>
+                  </>
+                );
+              }
+            }
+            return "-";
+          }
+        }))
     ),
     {
       title: "总价（美元）",
@@ -344,11 +394,10 @@ export default function QuotationHistoriesPage() {
       align: "right",
       render: (value: string) => new Intl.NumberFormat().format(Number(value))
     }
-  ], [categoryOptions]);
+  ], [categoryOptions, maxMaterialDisplayByCategoryOptions]);
 
   useEffect(() => {
     dispatch(fetchCategoryOptions());
-    dispatch(fetchMaterials());
     dispatch(fetchQuotationHistories(1));
   }, []);
 
@@ -358,11 +407,38 @@ export default function QuotationHistoriesPage() {
 
   useEffect(() => {
     console.log("categoryOptions: ", categoryOptions);
-  }, [categoryOptions]);
+    if (categoryOptions.length > 0) {
+      dispatch(fetchMaxDisplayIndexByCategoryOptionIds(categoryOptions.map(({id}) => id)));
+    }
+  }, [dispatch, categoryOptions]);
 
+  /**
   useEffect(() => {
-    console.log("materials: ", materials);
-  }, [materials]);
+    console.log("maxMaterialDisplayByCategoryOptions: ", maxMaterialDisplayByCategoryOptions);
+    if (maxMaterialDisplayByCategoryOptions.length > 0 && categoryOptions.length > 0) {
+      for (let i: number = 0; i < categoryOptions.length; ++i) {
+        const categoryOption: CategoryOption = categoryOptions[i];
+        const maxMaterialDisplayByCategoryOption: MaxMaterialDisplayByCategoryOption | undefined = maxMaterialDisplayByCategoryOptions.find(({categoryOptionId}) => categoryOptionId === categoryOption.id);
+        if (maxMaterialDisplayByCategoryOption && maxMaterialDisplayByCategoryOption.index > 0) {
+          categoryOptions[i] = {
+            ...categoryOption,
+            chineseName: `${categoryOption.chineseName} 1`,
+            name: `${categoryOption.name} 1`
+          };
+          ++i;
+          for (let j: number = 1; j <= maxMaterialDisplayByCategoryOption.index; ++j) {
+            categoryOptions.splice(i, 0, {
+              ...categoryOption,
+              chineseName: `${categoryOption.chineseName} ${j + 1}`,
+              name: `${categoryOption.name} ${j + 1}`
+            });
+            ++i;
+          }
+        }
+      }
+    }
+  }, [maxMaterialDisplayByCategoryOptions, categoryOptions]);
+   */
 
   return (
     <Table<QuotationHistory>
@@ -375,7 +451,7 @@ export default function QuotationHistoriesPage() {
       loading={loading}
       pagination={{
         current: currentPage,
-        pageSize: 10,
+        pageSize: 20,
         total: totalItems
       }}
     />
