@@ -15,12 +15,12 @@ export default function CustomersLayout({children}: PropsWithChildren) {
 
   const items: TabsProps["items"] = [
     {
-      key: "/list",
+      key: "/list/",
       label: "客户列表",
       children: children
     },
     {
-      key: "/tiers",
+      key: "/tiers/",
       label: "客户等级",
       children: children
     }

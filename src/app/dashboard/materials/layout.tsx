@@ -15,12 +15,12 @@ export default function MaterialsLayout({children}: PropsWithChildren) {
 
   const items: TabsProps["items"] = [
     {
-      key: "/list",
+      key: "/list/",
       label: "材料列表",
       children: children
     },
     {
-      key: "/display-controller",
+      key: "/display-controller/",
       label: "材料显示控制列表",
       children: children
     }

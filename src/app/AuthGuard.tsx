@@ -33,7 +33,7 @@ export default function AuthGuard({ children }: PropsWithChildren) {
       return;
     }
     const token: string | null = localStorage.getItem("jwtToken");
-    const isLoginPage = pathname === "/login";
+    const isLoginPage = pathname === "/login/";
 
     if (token) {
       const payload: JwtPayload | null = getPayload(token);
@@ -50,10 +50,10 @@ export default function AuthGuard({ children }: PropsWithChildren) {
 
     if (!isValid.current && !isLoginPage) {
       // no valid token and not already on login
-      router.replace("/login")
+      router.replace("/login/");
     } else if (isValid.current && isLoginPage) {
       // already authenticated but on login page
-      router.replace("/dashboard");
+      router.replace("/dashboard/");
       dispatch(setAuthenticated(true));
     } else {
       // OK to render the children

@@ -9,7 +9,7 @@ export default function MaterialsPage() {
 
   useEffect(() => {
     if (/\/dashboard\/materials\/?$/.test(pathname)) {
-      router.replace("/dashboard/materials/list");
+      router.replace("/dashboard/materials/list/");
     }
   }, [pathname, router]);
 

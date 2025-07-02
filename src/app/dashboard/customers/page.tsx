@@ -9,7 +9,7 @@ export default function CustomersPage() {
 
   useEffect(() => {
     if (/\/dashboard\/customers\/?$/.test(pathname)) {
-      router.replace("/dashboard/customers/list");
+      router.replace("/dashboard/customers/list/");
     }
   }, [pathname, router]);
 
