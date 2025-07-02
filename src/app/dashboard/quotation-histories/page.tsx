@@ -325,7 +325,8 @@ export default function QuotationHistoriesPage() {
       title: "材料面积（㎡）",
       dataIndex: "materialArea",
       key: "materialArea",
-      align: "right"
+      align: "right",
+      render: (value: string) => value || "-"
     },
     {
       title: "印数",
@@ -338,19 +339,22 @@ export default function QuotationHistoriesPage() {
       title: "印刷费（元）",
       dataIndex: "printingCost",
       key: "printingCost",
-      align: "right"
+      align: "right",
+      render: (value: string) => value || "-"
     },
     {
       title: "材料费（元）",
       dataIndex: "materialCost",
       key: "materialCost",
-      align: "right"
+      align: "right",
+      render: (value: string) => value || "-"
     },
     {
       title: "复合费（元）",
       dataIndex: "laminationCost",
       key: "laminationCost",
-      align: "right"
+      align: "right",
+      render: (value: string) => value || "-"
     },
     {
       title: "制袋费（元）",
