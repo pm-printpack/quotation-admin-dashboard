@@ -58,7 +58,7 @@ export default function QuotationHistoriesPage() {
       width: 120,
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (createdAt: string) => dayjs.tz(createdAt, "Asia/Shanghai").format("YYYY-MM-DD HH:mm:ss")
+      render: (createdAt: string) => dayjs.tz(new Date(createdAt), "Asia/Shanghai").format("YYYY-MM-DD HH:mm:ss")
     },
     {
       title: "记录号",
