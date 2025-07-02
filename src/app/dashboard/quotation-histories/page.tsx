@@ -2,8 +2,8 @@
 import { DigitalPrintingQuotationHistory, fetchQuotationHistories, GravurePrintingQuotationHistory, OffsetPrintingQuotationHistory, QuotationHistory } from "@/lib/features/quotation-histories.slice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
-import { Button, Flex, Space, Table, TableColumnsType, TableColumnType, Tooltip } from "antd";
-import { useEffect, useMemo } from "react";
+import { Button, Flex, Space, Table, TableColumnsType, TableColumnType, TablePaginationConfig, Tooltip } from "antd";
+import { useCallback, useEffect, useMemo } from "react";
 import { createStyles } from "antd-style";
 import { Customer } from "@/lib/features/customers.slice";
 import dayjs from "dayjs";
@@ -406,43 +406,15 @@ export default function QuotationHistoriesPage() {
   }, []);
 
   useEffect(() => {
-    console.log(list);
-  }, [list]);
-
-  useEffect(() => {
     console.log("categoryOptions: ", categoryOptions);
     if (categoryOptions.length > 0) {
       dispatch(fetchMaxDisplayIndexByCategoryOptionIds(categoryOptions.map(({id}) => id)));
     }
   }, [dispatch, categoryOptions]);
 
-  /**
-  useEffect(() => {
-    console.log("maxMaterialDisplayByCategoryOptions: ", maxMaterialDisplayByCategoryOptions);
-    if (maxMaterialDisplayByCategoryOptions.length > 0 && categoryOptions.length > 0) {
-      for (let i: number = 0; i < categoryOptions.length; ++i) {
-        const categoryOption: CategoryOption = categoryOptions[i];
-        const maxMaterialDisplayByCategoryOption: MaxMaterialDisplayByCategoryOption | undefined = maxMaterialDisplayByCategoryOptions.find(({categoryOptionId}) => categoryOptionId === categoryOption.id);
-        if (maxMaterialDisplayByCategoryOption && maxMaterialDisplayByCategoryOption.index > 0) {
-          categoryOptions[i] = {
-            ...categoryOption,
-            chineseName: `${categoryOption.chineseName} 1`,
-            name: `${categoryOption.name} 1`
-          };
-          ++i;
-          for (let j: number = 1; j <= maxMaterialDisplayByCategoryOption.index; ++j) {
-            categoryOptions.splice(i, 0, {
-              ...categoryOption,
-              chineseName: `${categoryOption.chineseName} ${j + 1}`,
-              name: `${categoryOption.name} ${j + 1}`
-            });
-            ++i;
-          }
-        }
-      }
-    }
-  }, [maxMaterialDisplayByCategoryOptions, categoryOptions]);
-   */
+  const onPaginationChange = useCallback((pagination: TablePaginationConfig) => {
+    dispatch(fetchQuotationHistories(pagination.current || 1));
+  }, []);
 
   return (
     <Table<QuotationHistory>
@@ -458,6 +430,7 @@ export default function QuotationHistoriesPage() {
         pageSize: 20,
         total: totalItems
       }}
+      onChange={onPaginationChange}
     />
   );
 }
