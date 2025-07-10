@@ -2,7 +2,7 @@
 import { DigitalPrintingQuotationHistory, fetchQuotationHistories, GravurePrintingQuotationHistory, OffsetPrintingQuotationHistory, QuotationHistory } from "@/lib/features/quotation-histories.slice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
-import { Button, Flex, Space, Table, TableColumnsType, TableColumnType, TablePaginationConfig, Tooltip } from "antd";
+import { Button, Divider, Flex, Space, Table, TableColumnsType, TableColumnType, TablePaginationConfig, Tooltip } from "antd";
 import { useCallback, useEffect, useMemo } from "react";
 import { createStyles } from "antd-style";
 import { Customer } from "@/lib/features/customers.slice";
@@ -172,15 +172,22 @@ export default function QuotationHistoriesPage() {
               }
               return "-";
             } else {
-              const categoryAllMapping: CategoryAllMapping | undefined = record.categoryAllMappings.find((mapping) => mapping.categoryOption?.id === categoryOption.id)
-              if (categoryAllMapping && categoryAllMapping.categorySuboption) {
-                return (
+              const categoryAllMappings: CategoryAllMapping[] = record.categoryAllMappings.filter((mapping) => mapping.categoryOption?.id === categoryOption.id);
+              if (categoryAllMappings.length > 0) {
+                return categoryAllMappings.map((categoryAllMapping: CategoryAllMapping, index: number) => (
                   <>
-                    <span>{ categoryAllMapping.categorySuboption.chineseName }</span>
+                    {
+                      index > 0
+                      ?
+                      <Divider size="small" />
+                      :
+                      null
+                    }
+                    <span>{ categoryAllMapping.categorySuboption?.chineseName }</span>
                     <br />
-                    <span className={pageStyles.hintStyle}>({categoryAllMapping.categorySuboption.name})</span>
+                    <span className={pageStyles.hintStyle}>({categoryAllMapping.categorySuboption?.name})</span>
                   </>
-                );
+                ));
               }
             }
             return "-";
