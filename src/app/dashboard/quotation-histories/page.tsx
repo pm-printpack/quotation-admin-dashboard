@@ -3,7 +3,7 @@ import { DigitalPrintingQuotationHistory, fetchQuotationHistories, GravurePrinti
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { Button, Divider, Flex, Space, Table, TableColumnsType, TableColumnType, TablePaginationConfig, Tooltip } from "antd";
-import { useCallback, useEffect, useMemo } from "react";
+import { Fragment, useCallback, useEffect, useMemo } from "react";
 import { createStyles } from "antd-style";
 import { Customer } from "@/lib/features/customers.slice";
 import dayjs from "dayjs";
@@ -175,7 +175,7 @@ export default function QuotationHistoriesPage() {
               const categoryAllMappings: CategoryAllMapping[] = record.categoryAllMappings.filter((mapping) => mapping.categoryOption?.id === categoryOption.id);
               if (categoryAllMappings.length > 0) {
                 return categoryAllMappings.map((categoryAllMapping: CategoryAllMapping, index: number) => (
-                  <>
+                  <Fragment key={`categoryAllMapping-${categoryAllMapping.id}-${index}`}>
                     {
                       index > 0
                       ?
@@ -186,7 +186,7 @@ export default function QuotationHistoriesPage() {
                     <span>{ categoryAllMapping.categorySuboption?.chineseName }</span>
                     <br />
                     <span className={pageStyles.hintStyle}>({categoryAllMapping.categorySuboption?.name})</span>
-                  </>
+                  </Fragment>
                 ));
               }
             }
