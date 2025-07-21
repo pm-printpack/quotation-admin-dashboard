@@ -7,6 +7,7 @@ import categoriesReducer from "./features/categories.slice";
 import materialsReducer from "./features/materials.slice";
 import exchangeReducer from "./features/exchange.slice";
 import quotationHistoriesReducer from "./features/quotation-histories.slice";
+import shippingsReducer from "./features/shippings.slice";
 
 export const makeStore = () => {
   return configureStore({
@@ -18,7 +19,8 @@ export const makeStore = () => {
       categories: categoriesReducer,
       materials: materialsReducer,
       exchange: exchangeReducer,
-      quotationHistories: quotationHistoriesReducer
+      quotationHistories: quotationHistoriesReducer,
+      shippings: shippingsReducer
     }
   })
 }

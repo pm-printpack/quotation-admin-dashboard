@@ -19,7 +19,6 @@ async function request<RequestDataType = any, ResponseDataType = Record<string, 
     if (!token && !/\/login$/.test(path)) {
       throw new Error("Unauthorized");
     }
-    console.log((method.toLowerCase() === "get" ? {params: data} : {data: data}));
     const { data: responseData }: AxiosResponse<ResponseBody<ResponseDataType>, RequestDataType> = await axios({
       url: `${process.env.NEXT_PUBLIC_API_BASE}${path}`,
       ...(
