@@ -54,8 +54,10 @@ export default function CustomerTiersPage() {
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(fetchCustomerTiers()).unwrap();
-  }, []);
+    if (customerTiers.length === 0) {
+      dispatch(fetchCustomerTiers()).unwrap();
+    }
+  }, [customerTiers]);
 
   const columns: EditableColumnsType<CustomerTier> = useMemo(() => [
     {

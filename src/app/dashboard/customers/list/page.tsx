@@ -56,9 +56,11 @@ export default function CustomerListPage() {
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(fetchCustomers()).unwrap();
-    dispatch(fetchCustomerTiers()).unwrap();
-  }, []);
+    if (customers.length === 0) {
+      dispatch(fetchCustomers()).unwrap();
+      dispatch(fetchCustomerTiers()).unwrap();
+    }
+  }, [customers]);
 
   const columns: EditableColumnsType<Customer> = useMemo(() => [
     {
