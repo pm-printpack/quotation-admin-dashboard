@@ -2,7 +2,7 @@
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { Button, Flex, Space, Tooltip } from "antd";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Text from "antd/es/typography/Text";
 import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
 import DoubleCheckedButton from "@/components/DoubleCheckedButton";
@@ -15,6 +15,7 @@ export default function CustomerTiersPage() {
   const customerTiers: CustomerTier[] = useAppSelector((state: RootState) => state.customerTiers.list);
   const loading: boolean = useAppSelector((state: RootState) => state.customerTiers.loading);
   const [editingId, setEditingId] = useState<number>(NaN);
+  const loadOnce: RefObject<boolean> = useRef<boolean>(false);
 
   const onAdd = useCallback(() => {
     dispatch(addRecord());
@@ -54,10 +55,14 @@ export default function CustomerTiersPage() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (customerTiers.length === 0) {
+    if (!loadOnce.current) {
+      loadOnce.current = true;
       dispatch(fetchCustomerTiers()).unwrap();
     }
-  }, [customerTiers]);
+    return () => {
+      loadOnce.current = false;
+    };
+  }, []);
 
   const columns: EditableColumnsType<CustomerTier> = useMemo(() => [
     {
