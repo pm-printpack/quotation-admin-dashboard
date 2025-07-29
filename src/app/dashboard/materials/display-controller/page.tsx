@@ -5,7 +5,7 @@ import { Checkbox, CheckboxChangeEvent, Table } from "antd";
 import { useCallback, useEffect, useMemo } from "react";
 import Text from "antd/es/typography/Text";
 import { Material, MaterialDisplay, fetchMaterials, updateMaterialDisplay } from "@/lib/features/materials.slice";
-import { ColumnsType } from "antd/es/table";
+import { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { useTranslations } from "next-intl";
 import { getBrowserLocale } from "@/lib/i18n";
 
@@ -13,11 +13,13 @@ export default function MaterialDisplayControllerPage() {
   const dispatch = useAppDispatch();
   const t = useTranslations("materials");
   const materials: Material[] = useAppSelector((state: RootState) => state.materials.list);
+  const totalItems: number = useAppSelector((state: RootState) => state.materials.totalItems);
+  const currentPage: number = useAppSelector((state: RootState) => state.materials.currentPage);
   const loading: boolean = useAppSelector((state: RootState) => state.materials.loading);
   const isZhCN: boolean = useMemo(() => getBrowserLocale() === "zh-CN", []);
 
   useEffect(() => {
-    dispatch(fetchMaterials()).unwrap();
+    dispatch(fetchMaterials(1)).unwrap();
   }, [dispatch]);
 
   const onChange = useCallback((materialDisplayId: number, record: Material, index: number) => {
@@ -69,12 +71,22 @@ export default function MaterialDisplayControllerPage() {
     return columnSegments;
   }, [isZhCN, onChange, materials]);
 
+  const onPaginationChange = useCallback((pagination: TablePaginationConfig) => {
+    dispatch(fetchMaterials(pagination.current || 1));
+  }, []);
+
   return (
     <Table<Material>
       columns={columns}
       dataSource={materials}
       loading={loading}
       rowKey={(record: Material) => record.id}
+      pagination={{
+        current: currentPage,
+        total: totalItems,
+        showSizeChanger: false
+      }}
+      onChange={onPaginationChange}
     />
   );
 }

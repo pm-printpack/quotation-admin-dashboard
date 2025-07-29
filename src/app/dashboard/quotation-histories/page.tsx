@@ -2,7 +2,7 @@
 import { DigitalPrintingQuotationHistory, fetchQuotationHistories, GravurePrintingQuotationHistory, OffsetPrintingQuotationHistory, QuotationHistory } from "@/lib/features/quotation-histories.slice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
-import { Button, Divider, Flex, Space, Table, TableColumnsType, TableColumnType, TablePaginationConfig, Tooltip } from "antd";
+import { Divider, Table, TableColumnsType, TableColumnType, TablePaginationConfig } from "antd";
 import { Fragment, useCallback, useEffect, useMemo } from "react";
 import { createStyles } from "antd-style";
 import { Customer } from "@/lib/features/customers.slice";
@@ -11,7 +11,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import pageStyles from "./page.module.css";
 import { CategoryOption, fetchCategoryOptions, CategoryPrintingType, CategoryProductSubcategory, CategoryAllMapping, CategoryOptionWithIndex } from "@/lib/features/categories.slice";
-import { fetchMaxDisplayIndexByCategoryOptionIds, Material, MaterialDisplay, MaxMaterialDisplayByCategoryOption } from "@/lib/features/materials.slice";
+import { fetchMaxDisplayIndexByCategoryOptionIds, MaxMaterialDisplayByCategoryOption } from "@/lib/features/materials.slice";
 import { useTranslations } from "next-intl";
 import { getBrowserLocale } from "@/lib/i18n";
 
@@ -438,8 +438,8 @@ export default function QuotationHistoriesPage() {
       loading={loading}
       pagination={{
         current: currentPage,
-        pageSize: 20,
-        total: totalItems
+        total: totalItems,
+        showSizeChanger: false
       }}
       onChange={onPaginationChange}
     />

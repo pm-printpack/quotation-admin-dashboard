@@ -215,7 +215,7 @@ interface PaginationOnQuotationHistoriesData {
   }
 }
 
-const initialState = {
+const initialState: QuotationHistoriesState = {
   list: [],
   totalItems: 0,
   currentPage: 1,

@@ -1,7 +1,7 @@
 "use client";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
-import { Button, Flex, Space, Tooltip } from "antd";
+import { Button, Flex, Space, TablePaginationConfig, Tooltip } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Text from "antd/es/typography/Text";
 import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
@@ -16,6 +16,8 @@ export default function MaterialListPage() {
   const dispatch = useAppDispatch();
   const t = useTranslations("materials");
   const materials: Material[] = useAppSelector((state: RootState) => state.materials.list);
+  const totalItems: number = useAppSelector((state: RootState) => state.materials.totalItems);
+  const currentPage: number = useAppSelector((state: RootState) => state.materials.currentPage);
   const loading: boolean = useAppSelector((state: RootState) => state.materials.loading);
   const [editingId, setEditingId] = useState<number>(NaN);
   const isZhCN: boolean = useMemo(() => getBrowserLocale() === "zh-CN", []);
@@ -53,12 +55,12 @@ export default function MaterialListPage() {
   const onDelete = useCallback((id: number) => {
     return async () => {
       await dispatch(deleteMaterial(id)).unwrap();
-      await dispatch(fetchMaterials()).unwrap();
+      await dispatch(fetchMaterials(currentPage || 1)).unwrap();
     };
-  }, [dispatch]);
+  }, [dispatch, currentPage]);
 
   useEffect(() => {
-    dispatch(fetchMaterials()).unwrap();
+    dispatch(fetchMaterials(1)).unwrap();
   }, [dispatch]);
 
   const columns: EditableColumnsType<Material> = useMemo(() => [
@@ -228,6 +230,10 @@ export default function MaterialListPage() {
     }
   ], [isZhCN, editingId, onEdit, onDelete]);
 
+  const onPaginationChange = useCallback((pagination: TablePaginationConfig) => {
+    dispatch(fetchMaterials(pagination.current || 1));
+  }, []);
+
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>
       <Flex vertical={false} justify="flex-end">
@@ -242,6 +248,12 @@ export default function MaterialListPage() {
         columns={columns}
         dataSource={materials}
         loading={loading}
+        pagination={{
+          current: currentPage,
+          total: totalItems,
+          showSizeChanger: false
+        }}
+        onChange={onPaginationChange}
       />
     </Space>
   );

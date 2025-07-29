@@ -42,6 +42,16 @@ export interface Material extends NewMaterial, Category {
   displays: MaterialDisplay[];
 };
 
+interface PaginationOnMaterialsData {
+  data: Material[];
+  meta: {
+    currentPage: number;
+    itemsPerPage: number;
+    totalItems: number;
+    totalPages: number;
+  }
+}
+
 export interface MaterialDisplay {
   id: number;
   categoryPrintingType?: CategoryPrintingType;
@@ -60,24 +70,34 @@ export interface MaxMaterialDisplayByCategoryOption {
 
 interface MaterialsState {
   list: Material[];
+  totalItems: number;
+  currentPage: number;
   maxDisplays: MaxMaterialDisplayByCategoryOption[];
   loading: boolean;
 }
 
 const initialState: MaterialsState = {
   list: [],
+  totalItems: 0,
+  currentPage: 1,
   maxDisplays: [],
   loading: false
 };
 
-export const fetchMaterials = createAsyncThunk<Material[], void>(
+export const fetchMaterials = createAsyncThunk<PaginationOnMaterialsData, number>(
   "materials/list",
-  async (): Promise<Material[]> => {
-    const {data, error} = await get<{}, Material[]>("/materials");
+  async (page: number): Promise<PaginationOnMaterialsData> => {
+    const limit: number = 10;
+    const {data, error} = await get<{}, PaginationOnMaterialsData>(`/materials?page=${page}&limit=${limit}`);
     if (error) {
       throw error;
     }
-    return data || [];
+    return data || {data:[], meta: {
+      currentPage: page,
+      itemsPerPage: limit,
+      totalItems: 0,
+      totalPages: page
+    }};
   }
 );
 
@@ -104,7 +124,7 @@ export const createMaterial = createAsyncThunk<void, NewMaterial>(
     if (error) {
       throw error;
     }
-    dispatch(fetchMaterials());
+    dispatch(fetchMaterials(1));
   }
 );
 
@@ -207,8 +227,11 @@ export const materialsSlice = createSlice({
       state.maxDisplays = action.payload;
       state.loading = false;
     });
-    builder.addCase(fetchMaterials.fulfilled, (state: MaterialsState, action: PayloadAction<Material[]>) => {
-      state.list = action.payload;
+    builder.addCase(fetchMaterials.fulfilled, (state: MaterialsState, action: PayloadAction<PaginationOnMaterialsData>) => {
+      const {data, meta} = action.payload;
+      state.list = data;
+      state.totalItems = meta.totalItems;
+      state.currentPage = meta.currentPage;
       state.loading = false;
     });
     builder.addCase(updateMaterial.fulfilled, (state: MaterialsState, action: PayloadAction<Partial<Material>, string, {arg: UpdatedMaterialParams}>) => {
