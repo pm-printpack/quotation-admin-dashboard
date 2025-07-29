@@ -58,7 +58,7 @@ export interface MaterialDisplay {
   categoryPrintingTypeId: number;
   categoryOption?: CategoryOption;
   categoryOptionId: number;
-  material: Material
+  material?: Material;
   isActive: boolean;
   index: number;
 }

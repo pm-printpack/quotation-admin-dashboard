@@ -167,9 +167,9 @@ export default function QuotationHistoriesPage() {
                 ) {
                   return (
                     <>
-                      <span>{ isZhCN ? materialDisplay.material.chineseName : materialDisplay.material.name }</span>
+                      <span>{ isZhCN ? materialDisplay.material?.chineseName : materialDisplay.material?.name }</span>
                       <br />
-                      <span className={pageStyles.hintStyle}>({isZhCN ? materialDisplay.material.name : materialDisplay.material.chineseName})</span>
+                      <span className={pageStyles.hintStyle}>({isZhCN ? materialDisplay.material?.name : materialDisplay.material?.chineseName})</span>
                     </>
                   );
                 }
