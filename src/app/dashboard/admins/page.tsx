@@ -139,7 +139,7 @@ export default function AdminsPage() {
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>
       <Flex vertical={false} justify="flex-end">
-        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>{t("new")}</Button>
+        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd} disabled={!!editingId}>{t("new")}</Button>
       </Flex>
       <EditableTable<Admin, NewAdmin, Admin>
         editingId={editingId}

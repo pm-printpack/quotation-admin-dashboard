@@ -229,7 +229,7 @@ export default function CustomerTiersPage() {
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>
       <Flex vertical={false} justify="flex-end">
-        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>{t("tiers.new")}</Button>
+        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd} disabled={!!editingId}>{t("tiers.new")}</Button>
       </Flex>
       <EditableTable<CustomerTier, NewCustomerTier, Required<Partial<CustomerTier> & {id: number}>>
         editingId={editingId}

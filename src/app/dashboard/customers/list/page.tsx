@@ -209,7 +209,7 @@ export default function CustomerListPage() {
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>
       <Flex vertical={false} justify="flex-end">
-        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>{t("list.new")}</Button>
+        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd} disabled={!!editingId}>{t("list.new")}</Button>
       </Flex>
       <EditableTable<Customer, NewCustomer, UpdatedCustomer>
         editingId={editingId}
