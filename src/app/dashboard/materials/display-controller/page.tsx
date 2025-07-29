@@ -84,6 +84,7 @@ export default function MaterialDisplayControllerPage() {
       pagination={{
         current: currentPage,
         total: totalItems,
+        pageSize: 10,
         showSizeChanger: false
       }}
       onChange={onPaginationChange}

@@ -251,6 +251,7 @@ export default function MaterialListPage() {
         pagination={{
           current: currentPage,
           total: totalItems,
+          pageSize: 10,
           showSizeChanger: false
         }}
         onChange={onPaginationChange}

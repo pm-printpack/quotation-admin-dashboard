@@ -439,6 +439,7 @@ export default function QuotationHistoriesPage() {
       pagination={{
         current: currentPage,
         total: totalItems,
+        pageSize: 20,
         showSizeChanger: false
       }}
       onChange={onPaginationChange}
