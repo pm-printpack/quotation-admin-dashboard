@@ -1,0 +1,7 @@
+{
+  "register": {
+    "newUsername": "新账号",
+    "newPassword": "新密码",
+    "rulesPassword": "请输入密码!"
+  }
+}

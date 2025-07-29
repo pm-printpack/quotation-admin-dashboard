@@ -1,0 +1,67 @@
+{
+  "title": "客户管理",
+  "tabs": {
+    "listLabel": "客户列表",
+    "tiersLabel": "客户等级"
+  },
+  "list": {
+    "columns": {
+      "username": "客户账号",
+      "name": "客户名",
+      "orgName": "客户公司名",
+      "email": "客户邮箱",
+      "phone": "手机号码",
+      "tier": "客户等级",
+      "operation": "操作"
+    },
+    "rules": {
+      "username": "请输入客户账号!",
+      "name": "请输入客户名!",
+      "orgName": "请输入客户公司名!",
+      "email": "请输入客户邮箱!",
+      "phone": "请输入客户的手机号码!",
+      "tier": "请选择客户等级!"
+    },
+    "modificationTooltip": "修改客户({name})的信息",
+    "removeTooltip": "删除客户({name})",
+    "removeConfirming": {
+      "title": "删除({name})",
+      "description": "你确定想删除客户({name})吗？",
+      "ok": "确定",
+      "cancel": "再想想"
+    },
+    "new": "添加新客户"
+  },
+  "tiers": {
+    "columns": {
+      "name": "客户等级",
+      "digitalPrintingProfitMargin": "数码利润率/%",
+      "offsetPrintingProfitMargin": "胶印利润率/%",
+      "gravurePrintingProfitMargin": "凹印利润率/%",
+      "minimumDiscountAmount1": "优惠金额起点1/美元",
+      "preferentialProfitMargin1": "优惠利润率1/%",
+      "minimumDiscountAmount2": "优惠金额起点2/美元",
+      "preferentialProfitMargin2": "优惠利润率2/%",
+      "operation": "操作"
+    },
+    "rules": {
+      "name": "请输入客户等级!",
+      "digitalPrintingProfitMargin": "请输入数码利润率!",
+      "offsetPrintingProfitMargin": "请输入胶印利润率!",
+      "gravurePrintingProfitMargin": "请输入凹印利润率/%!",
+      "minimumDiscountAmount1": "请输入优惠金额起点1!",
+      "preferentialProfitMargin1": "请输入优惠利润率1!",
+      "minimumDiscountAmount2": "请输入优惠金额起点2!",
+      "preferentialProfitMargin2": "请输入优惠利润率1!"
+    },
+    "modificationTooltip": "修改等级({name})的信息",
+    "removeTooltip": "删除等级({name})",
+    "removeConfirming": {
+      "title": "删除({name})",
+      "description": "你确定想删除等级({name})吗？",
+      "ok": "确定",
+      "cancel": "再想想"
+    },
+    "new": "添加新等级"
+  }
+}

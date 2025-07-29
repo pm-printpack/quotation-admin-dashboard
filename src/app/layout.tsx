@@ -1,3 +1,4 @@
+"use client";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -5,6 +6,9 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import StoreProvider from "./StoreProvider";
 import AuthGuard from "./AuthGuard";
 import Head from "next/head";
+import { useEffect, useState } from "react";
+import { getBrowserLocale, loadLocaleMessages } from "@/lib/i18n";
+import { NextIntlClientProvider } from "next-intl";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +20,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Admin Quotation System",
   description: "Admin Quotation System"
 };
@@ -26,6 +30,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [locale, setLocale] = useState<string>("en-US");
+  const [messages, setMessages] = useState<Record<string, any> | null>(null);
+
+  useEffect(() => {
+    const loc: string = getBrowserLocale();
+    setLocale(loc);
+    (async () => {
+      setMessages(await loadLocaleMessages(loc));
+    })();
+  }, [])
+
   return (
     <html lang="en">
       <Head>
@@ -35,10 +50,20 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <StoreProvider>
           <AuthGuard>
-            <AntdRegistry>{children}</AntdRegistry>
+            <AntdRegistry>
+              {
+                messages
+                ?
+                <NextIntlClientProvider locale={locale} messages={messages}>
+                  {children}
+                </NextIntlClientProvider>
+                :
+                <div>Loading translations…</div>
+              }
+            </AntdRegistry>
           </AuthGuard>
         </StoreProvider>
       </body>
     </html>
   );
-}
+};

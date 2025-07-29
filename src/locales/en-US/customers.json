@@ -1,0 +1,67 @@
+{
+  "title": "Customers",
+  "tabs": {
+    "listLabel": "Customers",
+    "tiersLabel": "Customer tiers"
+  },
+  "list": {
+    "columns": {
+      "username": "Username",
+      "name": "Name",
+      "orgName": "Organization name",
+      "email": "Email",
+      "phone": "Phone number",
+      "tier": "Tier",
+      "operation": "Operation"
+    },
+    "rules": {
+      "username": "Username is required!",
+      "name": "Name is required!",
+      "orgName": "Organization name is required!",
+      "email": "Email is required!",
+      "phone": "Phone number is required!",
+      "tier": "Tier is required!"
+    },
+    "modificationTooltip": "Modify customer({name}) information",
+    "removeTooltip": "Remove customer({name})",
+    "removeConfirming": {
+      "title": "Remove customer({name})",
+      "description": "Confirm deletion of customer({name})?",
+      "ok": "Confirm",
+      "cancel": "Cancel"
+    },
+    "new": "Create new customer"
+  },
+  "tiers": {
+    "columns": {
+      "name": "Tier",
+      "digitalPrintingProfitMargin": "Digital printing profit margin/%",
+      "offsetPrintingProfitMargin": "Offset printing profit margin/%",
+      "gravurePrintingProfitMargin": "Gravure printing profit margin/%",
+      "minimumDiscountAmount1": "Minimum discount amount 1/USD",
+      "preferentialProfitMargin1": "Preferential profit margin 1/%",
+      "minimumDiscountAmount2": "Minimum discount amount 2/USD",
+      "preferentialProfitMargin2": "Preferential profit margin 2/%",
+      "operation": "Operation"
+    },
+    "rules": {
+      "name": "Tier is required!",
+      "digitalPrintingProfitMargin": "Digital printing profit margin is required!",
+      "offsetPrintingProfitMargin": "Offset printing profit margin is required!",
+      "gravurePrintingProfitMargin": "Gravure printing profit margin is required/%!",
+      "minimumDiscountAmount1": "Minimum discount amount 1 is required!",
+      "preferentialProfitMargin1": "Preferential profit margin 1 is required!",
+      "minimumDiscountAmount2": "Minimum discount amount 2 is required!",
+      "preferentialProfitMargin2": "Preferential profit margin 2 is required!"
+    },
+    "modificationTooltip": "Modify tier({name}) information",
+    "removeTooltip": "Remove tier({name})",
+    "removeConfirming": {
+      "title": "Remove ({name})",
+      "description": "Confirm deletion of tier({name})?",
+      "ok": "Confirm",
+      "cancel": "Cancel"
+    },
+    "new": "Create new tier"
+  }
+}

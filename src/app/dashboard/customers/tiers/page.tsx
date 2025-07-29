@@ -2,20 +2,21 @@
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { Button, Flex, Space, Tooltip } from "antd";
-import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Text from "antd/es/typography/Text";
 import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
 import DoubleCheckedButton from "@/components/DoubleCheckedButton";
 import { addRecord, createCustomerTier, CustomerTier, deleteAddingRecord, deleteCustomerTier, fetchCustomerTiers, NewCustomerTier, updateCustomerTier } from "@/lib/features/customer-tiers.slice";
 import EditableTable from "@/components/table/EditableTable";
 import { EditableColumnsType } from "@/components/table/EditableCell";
+import { useTranslations } from "next-intl";
 
 export default function CustomerTiersPage() {
+  const t = useTranslations("customers");
   const dispatch = useAppDispatch();
   const customerTiers: CustomerTier[] = useAppSelector((state: RootState) => state.customerTiers.list);
   const loading: boolean = useAppSelector((state: RootState) => state.customerTiers.loading);
   const [editingId, setEditingId] = useState<number>(NaN);
-  const loadOnce: RefObject<boolean> = useRef<boolean>(false);
 
   const onAdd = useCallback(() => {
     dispatch(addRecord());
@@ -55,18 +56,12 @@ export default function CustomerTiersPage() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (!loadOnce.current) {
-      loadOnce.current = true;
-      dispatch(fetchCustomerTiers()).unwrap();
-    }
-    return () => {
-      loadOnce.current = false;
-    };
+    dispatch(fetchCustomerTiers()).unwrap();
   }, []);
 
   const columns: EditableColumnsType<CustomerTier> = useMemo(() => [
     {
-      title: "客户等级",
+      title: t("tiers.columns.name"),
       dataIndex: "name",
       key: "name",
       width: "8%",
@@ -74,13 +69,13 @@ export default function CustomerTiersPage() {
       rules: [
         {
           required: true,
-          message: "请输入客户等级!"
+          message: t("tiers.rules.name")
         }
       ],
       render: (name: string) => <Text>{name}</Text>
     },
     {
-      title: "数码利润率/%",
+      title: t("tiers.columns.digitalPrintingProfitMargin"),
       dataIndex: "digitalPrintingProfitMargin",
       key: "digitalPrintingProfitMargin",
       width: "11%",
@@ -89,13 +84,13 @@ export default function CustomerTiersPage() {
       rules: [
         {
           required: true,
-          message: "请输入数码利润率!"
+          message: t("tiers.rules.digitalPrintingProfitMargin")
         }
       ],
       render: (digitalPrintingProfitMargin: number) => <Text>{digitalPrintingProfitMargin}</Text>
     },
     {
-      title: "胶印利润率/%",
+      title: t("tiers.columns.offsetPrintingProfitMargin"),
       dataIndex: "offsetPrintingProfitMargin",
       key: "offsetPrintingProfitMargin",
       width: "11%",
@@ -104,13 +99,13 @@ export default function CustomerTiersPage() {
       rules: [
         {
           required: true,
-          message: "请输入胶印利润率!"
+          message: t("tiers.rules.offsetPrintingProfitMargin")
         }
       ],
       render: (offsetPrintingProfitMargin: number) => <Text>{offsetPrintingProfitMargin}</Text>
     },
     {
-      title: "凹印利润率/%",
+      title: t("tiers.columns.gravurePrintingProfitMargin"),
       dataIndex: "gravurePrintingProfitMargin",
       key: "gravurePrintingProfitMargin",
       width: "11%",
@@ -119,13 +114,13 @@ export default function CustomerTiersPage() {
       rules: [
         {
           required: true,
-          message: "请输入凹印利润率/%!"
+          message: t("tiers.rules.gravurePrintingProfitMargin")
         }
       ],
       render: (gravurePrintingProfitMargin: number) => <Text>{gravurePrintingProfitMargin}</Text>
     },
     {
-      title: "优惠金额起点1/美元",
+      title: t("tiers.columns.minimumDiscountAmount1"),
       dataIndex: "minimumDiscountAmount1",
       key: "minimumDiscountAmount1",
       width: "14%",
@@ -134,13 +129,13 @@ export default function CustomerTiersPage() {
       rules: [
         {
           required: true,
-          message: "请输入优惠金额起点1!"
+          message: t("tiers.rules.minimumDiscountAmount1")
         }
       ],
       render: (minimumDiscountAmount1: number) => <Text>{minimumDiscountAmount1}</Text>
     },
     {
-      title: "优惠利润率1/%",
+      title: t("tiers.columns.preferentialProfitMargin1"),
       dataIndex: "preferentialProfitMargin1",
       key: "preferentialProfitMargin1",
       width: "11%",
@@ -149,13 +144,13 @@ export default function CustomerTiersPage() {
       rules: [
         {
           required: true,
-          message: "请输入优惠利润率1!"
+          message: t("tiers.rules.preferentialProfitMargin1")
         }
       ],
       render: (preferentialProfitMargin1: number) => <Text>{preferentialProfitMargin1}</Text>
     },
     {
-      title: "优惠金额起点2/美元",
+      title: t("tiers.columns.minimumDiscountAmount2"),
       dataIndex: "minimumDiscountAmount2",
       key: "minimumDiscountAmount2",
       width: "14%",
@@ -164,13 +159,13 @@ export default function CustomerTiersPage() {
       rules: [
         {
           required: true,
-          message: "请输入优惠金额起点2!"
+          message: t("tiers.rules.minimumDiscountAmount2")
         }
       ],
       render: (minimumDiscountAmount2: number) => <Text>{minimumDiscountAmount2}</Text>
     },
     {
-      title: "优惠利润率2/%",
+      title: t("tiers.columns.preferentialProfitMargin2"),
       dataIndex: "preferentialProfitMargin2",
       key: "preferentialProfitMargin2",
       width: "11%",
@@ -179,13 +174,13 @@ export default function CustomerTiersPage() {
       rules: [
         {
           required: true,
-          message: "请输入优惠利润率1!"
+          message: t("tiers.rules.preferentialProfitMargin2"),
         }
       ],
       render: (preferentialProfitMargin2: number) => <Text>{preferentialProfitMargin2}</Text>
     },
     {
-      title: "操作",
+      title: t("tiers.columns.operation"),
       width: "9%",
       type: "operation",
       render: (_, record: CustomerTier) => (
@@ -195,7 +190,7 @@ export default function CustomerTiersPage() {
             ?
             <Button type="text" shape="circle" size="middle" disabled={true} icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
             :
-            <Tooltip title={`修改等级（${record.name}）的信息`}>
+            <Tooltip title={t("tiers.modificationTooltip", {name: record.name})}>
               <Button type="text" shape="circle" size="middle" icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
             </Tooltip>
           }
@@ -214,15 +209,15 @@ export default function CustomerTiersPage() {
               undefined
               :
               {
-                title: `删除等级（${record.name}）`
+                title: t("tiers.removeTooltip", {name: record.name})
               }
             }
             popconfirmProps={{
-              title: `删除（${record.name}）`,
-              description: `你确定想删除等级（${record.name}）吗？`,
+              title: t("tiers.removeConfirming.title", {name: record.name}),
+              description: t("tiers.removeConfirming.description", {name: record.name}),
               onConfirm: onDelete(record.id),
-              okText: "确定",
-              cancelText: "再想想",
+              okText: t("tiers.removeConfirming.ok"),
+              cancelText: t("tiers.removeConfirming.cancel"),
               disabled: !!editingId
             }}
           />
@@ -234,7 +229,7 @@ export default function CustomerTiersPage() {
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>
       <Flex vertical={false} justify="flex-end">
-        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>添加新等级</Button>
+        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>{t("tiers.new")}</Button>
       </Flex>
       <EditableTable<CustomerTier, NewCustomerTier, Required<Partial<CustomerTier> & {id: number}>>
         editingId={editingId}

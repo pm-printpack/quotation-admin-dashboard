@@ -1,0 +1,10 @@
+{
+  "title": "系统设置",
+  "exchangeRateLabel": "汇率（Exchange Rate）",
+  "shippingtLabel": "运输（Shipping）",
+  "weightUnit": "元/kg",
+  "shippingTypeUnitPriceLabel": {
+    "ocean": "海运费单价",
+    "air": "空运费单价"
+  }
+}

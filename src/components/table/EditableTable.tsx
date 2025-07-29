@@ -6,6 +6,7 @@ import EditableCell, { EditableCellInputType, EditableCellInputTypeObject, Edita
 import DoubleCheckedButton from "../DoubleCheckedButton";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { DataIndex } from "rc-table/lib/interface";
+import { useTranslations } from "next-intl";
 
 interface RecordTypeWithId extends AnyObject {
   id: number | string;
@@ -34,6 +35,7 @@ export default function EditableTable<RecordType extends RecordTypeWithId, NewRe
   ...props
 }: EditableTableProps<RecordType, NewRecordType, UpdatedRecordType>) {
   const form: Ref<FormInstance> = useRef<FormInstance>(null);
+  const t = useTranslations("components/EditableTable");
 
   const onSubmit = useCallback((preRecord: RecordType, index: number) => {
     return () => {
@@ -83,9 +85,9 @@ export default function EditableTable<RecordType extends RecordTypeWithId, NewRe
                     size: "small"
                   }}
                   popconfirmProps={{
-                    title: "确定取消操作吗?",
-                    okText: "确定",
-                    cancelText: "再想想",
+                    title: t("removePop.title"),
+                    okText: t("removePop.ok"),
+                    cancelText: t("removePop.cancel"),
                     onConfirm: onCancel(record, index)
                   }}
                 />

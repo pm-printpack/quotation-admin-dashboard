@@ -2,7 +2,7 @@
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { Button, Flex, SelectProps, Space, Tooltip } from "antd";
-import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Text from "antd/es/typography/Text";
 import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons";
 import DoubleCheckedButton from "@/components/DoubleCheckedButton";
@@ -10,14 +10,15 @@ import { addRecord, createCustomer, Customer, deleteAddingRecord, deleteCustomer
 import { CustomerTier, fetchCustomerTiers } from "@/lib/features/customer-tiers.slice";
 import EditableTable from "@/components/table/EditableTable";
 import { EditableColumnsType } from "@/components/table/EditableCell";
+import { useTranslations } from "next-intl";
 
 export default function CustomerListPage() {
+  const t = useTranslations("customers");
   const dispatch = useAppDispatch();
   const customers: Customer[] = useAppSelector((state: RootState) => state.customers.list);
   const customerTiers: CustomerTier[] = useAppSelector((state: RootState) => state.customerTiers.list);
   const loading: boolean = useAppSelector((state: RootState) => state.customers.loading);
   const [editingId, setEditingId] = useState<number>(NaN);
-  const loadOnce: RefObject<boolean> = useRef<boolean>(false);
   
   const onAdd = useCallback(() => {
     dispatch(addRecord());
@@ -57,19 +58,13 @@ export default function CustomerListPage() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (!loadOnce.current) {
-      loadOnce.current = true;
-      dispatch(fetchCustomers()).unwrap();
-      dispatch(fetchCustomerTiers()).unwrap();
-    }
-    return () => {
-      loadOnce.current = false;
-    };
+    dispatch(fetchCustomers()).unwrap();
+    dispatch(fetchCustomerTiers()).unwrap();
   }, []);
 
   const columns: EditableColumnsType<Customer> = useMemo(() => [
     {
-      title: "客户账号",
+      title: t("list.columns.username"),
       dataIndex: "username",
       key: "username",
       width: "23%",
@@ -78,13 +73,13 @@ export default function CustomerListPage() {
       rules: [
         {
           required: true,
-          message: "请输入客户账号!"
+          message: t("list.rules.username")
         }
       ],
       render: (text: string) => <Text>{text}</Text>
     },
     {
-      title: "客户名",
+      title: t("list.columns.name"),
       dataIndex: "name",
       key: "name",
       width: "8%",
@@ -92,13 +87,13 @@ export default function CustomerListPage() {
       rules: [
         {
           required: true,
-          message: "请输入客户名!"
+          message: t("list.rules.name"),
         }
       ],
       render: (text: string) => <Text>{text}</Text>
     },
     {
-      title: "客户公司名",
+      title: t("list.columns.orgName"),
       dataIndex: "orgName",
       key: "orgName",
       width: "13%",
@@ -106,13 +101,13 @@ export default function CustomerListPage() {
       rules: [
         {
           required: true,
-          message: "请输入客户公司名!"
+          message: t("list.rules.orgName"),
         }
       ],
       render: (text: string) => <Text>{text}</Text>
     },
     {
-      title: "客户邮箱",
+      title: t("list.columns.email"),
       dataIndex: "email",
       key: "email",
       width: "23%",
@@ -120,13 +115,13 @@ export default function CustomerListPage() {
       rules: [
         {
           required: true,
-          message: "请输入客户邮箱!"
+          message: t("list.rules.email")
         }
       ],
       render: (text: string) => <Text>{text}</Text>
     },
     {
-      title: "手机号码",
+      title: t("list.columns.phone"),
       dataIndex: "phone",
       key: "phone",
       width: "13%",
@@ -134,13 +129,13 @@ export default function CustomerListPage() {
       rules: [
         {
           required: true,
-          message: "请输入客户的手机号码!"
+          message: t("list.rules.phone")
         }
       ],
       render: (text: string) => <Text>{text}</Text>
     },
     {
-      title: "客户等级",
+      title: t("list.columns.tier"),
       dataIndex: "tier",
       key: "tier",
       width: "9%",
@@ -159,13 +154,13 @@ export default function CustomerListPage() {
       rules: [
         {
           required: true,
-          message: "请选择客户等级!"
+          message: t("list.rules.tier")
         }
       ],
       render: (tier?: CustomerTier) => <Text>{tier?.name}</Text>
     },
     {
-      title: "操作",
+      title: t("list.columns.operation"),
       width: "11%",
       type: "operation",
       render: (_, record: Customer) => (
@@ -175,7 +170,7 @@ export default function CustomerListPage() {
             ?
             <Button type="text" shape="circle" size="middle" disabled={true} icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
             :
-            <Tooltip title={`修改客户（${record.name}）的信息`}>
+            <Tooltip title={t("list.modificationTooltip", {name: record.name})}>
               <Button type="text" shape="circle" size="middle" icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
             </Tooltip>
           }
@@ -194,15 +189,15 @@ export default function CustomerListPage() {
               undefined
               :
               {
-                title: `删除客户（${record.name}）`
+                title: t("list.removeTooltip", {name: record.name})
               }
             }
             popconfirmProps={{
-              title: `删除（${record.name}）`,
-              description: `你确定想删除客户（${record.name}）吗？`,
+              title: t("list.removeConfirming.title", {name: record.name}),
+              description: t("list.removeConfirming.description", {name: record.name}),
               onConfirm: onDelete(record.id),
-              okText: "确定",
-              cancelText: "再想想",
+              okText: t("list.removeConfirming.ok"),
+              cancelText: t("list.removeConfirming.cancel"),
               disabled: !!editingId
             }}
           />
@@ -214,7 +209,7 @@ export default function CustomerListPage() {
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>
       <Flex vertical={false} justify="flex-end">
-        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>添加新客户</Button>
+        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>{t("list.new")}</Button>
       </Flex>
       <EditableTable<Customer, NewCustomer, UpdatedCustomer>
         editingId={editingId}

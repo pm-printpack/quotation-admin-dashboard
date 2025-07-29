@@ -1,0 +1,47 @@
+{
+  "title": "材料管理",
+  "tabs": {
+    "listLabel": "材料列表",
+    "displayListLabel": "材料显示控制列表"
+  },
+  "list": {
+    "columns": {
+      "chineseName": "材料名",
+      "name": "英文名",
+      "density": "比重",
+      "densityUnit": "g/cm³",
+      "thickness": "厚度",
+      "thicknessUnit": "μm",
+      "weightPerCm2": "面积重",
+      "weightPerCm2Unit": "g/cm²",
+      "unitPricePerKg": "重量单价",
+      "unitPricePerKgUnit": "元/kg",
+      "unitPricePerSquareMeter": "面积单价",
+      "unitPricePerSquareMeterUnit": "元/m²",
+      "remarks": "备注",
+      "operations": "操作"
+    },
+    "rules": {
+      "chineseName": "请输入材料名!",
+      "name": "请输入材料英文名!",
+      "density": "请输入比重(g/cm³)!",
+      "thickness": "请输入厚度(μm)!",
+      "unitPricePerKg": "请输入重量单价(元/kg)!"
+    },
+    "modificationTooltip": "修改材料({name})的信息",
+    "removeTooltip": "删除材料({name})",
+    "removeConfirming": {
+      "title": "删除({name})",
+      "description": "你确定想删除材料({name})吗？",
+      "ok": "确定",
+      "cancel": "再想想"
+    },
+    "new": "添加新材料"
+  },
+  "displayList": {
+    "columns": {
+      "chineseName": "材料名",
+      "name": "英文名"
+    }
+  }
+}

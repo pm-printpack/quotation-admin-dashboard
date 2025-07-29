@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   output: "export",
+  reactStrictMode: true,
   distDir: process.env.NODE_ENV === "production" ? "out/prod" : (process.env.NODE_ENV === "test" ? "out/stage" : "out/dev"),
   trailingSlash: true,
   eslint: {

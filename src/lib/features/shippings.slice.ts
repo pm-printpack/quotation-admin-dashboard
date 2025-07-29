@@ -8,11 +8,6 @@ export enum ShippingType {
   AIR = "air"
 }
 
-export const ShippingTypeMapping: Record<ShippingType, string> = {
-  [ShippingType.OCEAN]: "海运费单价",
-  [ShippingType.AIR]: "空运费单价"
-};
-
 export interface Shipping {
   id: number;
   unitPrice: number;

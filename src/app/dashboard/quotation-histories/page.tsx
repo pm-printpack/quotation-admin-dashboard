@@ -12,6 +12,8 @@ import timezone from "dayjs/plugin/timezone";
 import pageStyles from "./page.module.css";
 import { CategoryOption, fetchCategoryOptions, CategoryPrintingType, CategoryProductSubcategory, CategoryAllMapping, CategoryOptionWithIndex } from "@/lib/features/categories.slice";
 import { fetchMaxDisplayIndexByCategoryOptionIds, Material, MaterialDisplay, MaxMaterialDisplayByCategoryOption } from "@/lib/features/materials.slice";
+import { useTranslations } from "next-intl";
+import { getBrowserLocale } from "@/lib/i18n";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -35,6 +37,8 @@ const useStyle = createStyles(({ css, prefixCls }) => {
 
 export default function QuotationHistoriesPage() {
   const dispatch = useAppDispatch();
+  const t = useTranslations("quotation-histories");
+  const isZhCN: boolean = useMemo(() => getBrowserLocale() === "zh-CN", []);
   const categoryOptions: CategoryOption[] = useAppSelector((state: RootState) => state.categories.categoryOptions);
   const maxMaterialDisplayByCategoryOptions: MaxMaterialDisplayByCategoryOption[] = useAppSelector((state: RootState) => state.materials.maxDisplays);
   const list: QuotationHistory[] = useAppSelector((state: RootState) => state.quotationHistories.list);
@@ -46,7 +50,7 @@ export default function QuotationHistoriesPage() {
 
   const columns: TableColumnsType<QuotationHistory> = useMemo(() => [
     {
-      title: "账号",
+      title: t("list.columns.username"),
       width: 100,
       dataIndex: "customer",
       key: "customer",
@@ -54,62 +58,62 @@ export default function QuotationHistoriesPage() {
       render: (customer: Customer) => customer.username
     },
     {
-      title: "询价时间",
+      title: t("list.columns.quotationDate"),
       width: 120,
       dataIndex: "createdAt",
       key: "createdAt",
       render: (createdAt: string) => dayjs.tz(new Date(createdAt), "Asia/Shanghai").format("YYYY-MM-DD HH:mm:ss")
     },
     {
-      title: "记录号",
+      title: t("list.columns.recordId"),
       dataIndex: "id",
       key: "id",
       align: "center"
     },
     {
-      title: "袋型",
+      title: t("list.columns.bagFormat"),
       width: 125,
       fixed: "left",
       dataIndex: "categoryProductSubcategory",
       key: "categoryProductSubcategory",
       render: (categoryProductSubcategory: CategoryProductSubcategory) => (
         <>
-          <span>{ categoryProductSubcategory.chineseName }</span>
+          <span>{ isZhCN ? categoryProductSubcategory.chineseName : categoryProductSubcategory.name }</span>
           <br />
-          <span className={pageStyles.hintStyle}>({categoryProductSubcategory.name})</span>
+          <span className={pageStyles.hintStyle}>({isZhCN ? categoryProductSubcategory.name : categoryProductSubcategory.chineseName})</span>
         </>
       )
     },
     {
-      title: "印刷方式",
+      title: t("list.columns.printingMethod"),
       width: 120,
       fixed: "left",
       dataIndex: "categoryPrintingType",
       key: "categoryPrintingType",
       render: (categoryPrintingType: CategoryPrintingType) => (
         <>
-          <span>{ categoryPrintingType.chineseName }</span>
+          <span>{ isZhCN ? categoryPrintingType.chineseName : categoryPrintingType.name }</span>
           <br />
-          <span className={pageStyles.hintStyle}>({categoryPrintingType.name})</span>
+          <span className={pageStyles.hintStyle}>({isZhCN ? categoryPrintingType.name : categoryPrintingType.chineseName})</span>
         </>
       )
     },
     {
-      title: "宽",
+      title: t("list.columns.width"),
       dataIndex: "width",
       key: "width",
       align: "right",
       render: (value: string) => new Intl.NumberFormat().format(Number(value))
     },
     {
-      title: "高",
+      title: t("list.columns.height"),
       dataIndex: "height",
       key: "height",
       align: "right",
       render: (value: string) => new Intl.NumberFormat().format(Number(value))
     },
     {
-      title: "全展",
+      title: t("list.columns.gusset"),
       dataIndex: "gusset",
       key: "gusset",
       align: "right",
@@ -122,14 +126,14 @@ export default function QuotationHistoriesPage() {
       align: "right"
     },
     {
-      title: "单SKU数量",
+      title: t("list.columns.quantityPerSKU"),
       dataIndex: "quantityPerStyle",
       key: "quantityPerStyle",
       align: "right",
       render: (value: string) => new Intl.NumberFormat().format(Number(value))
     },
     {
-      title: "总数量",
+      title: t("list.columns.totalQuantity"),
       dataIndex: "totalQuantity",
       key: "totalQuantity",
       align: "right",
@@ -152,7 +156,7 @@ export default function QuotationHistoriesPage() {
         })
         .flat()
         .map((categoryOption: CategoryOption, index: number): TableColumnType<QuotationHistory> => ({
-          title: categoryOption.chineseName,
+          title: isZhCN ? categoryOption.chineseName : categoryOption.name,
           key: `categoryOption-${categoryOption.id}-${index}`,
           render: (_, record: QuotationHistory) => {
             if (categoryOption.isMaterial) {
@@ -163,9 +167,9 @@ export default function QuotationHistoriesPage() {
                 ) {
                   return (
                     <>
-                      <span>{ materialDisplay.material.chineseName }</span>
+                      <span>{ isZhCN ? materialDisplay.material.chineseName : materialDisplay.material.name }</span>
                       <br />
-                      <span className={pageStyles.hintStyle}>({materialDisplay.material.name})</span>
+                      <span className={pageStyles.hintStyle}>({isZhCN ? materialDisplay.material.name : materialDisplay.material.chineseName})</span>
                     </>
                   );
                 }
@@ -183,9 +187,9 @@ export default function QuotationHistoriesPage() {
                       :
                       null
                     }
-                    <span>{ categoryAllMapping.categorySuboption?.chineseName }</span>
+                    <span>{ isZhCN ? categoryAllMapping.categorySuboption?.chineseName : categoryAllMapping.categorySuboption?.name }</span>
                     <br />
-                    <span className={pageStyles.hintStyle}>({categoryAllMapping.categorySuboption?.name})</span>
+                    <span className={pageStyles.hintStyle}>({isZhCN ? categoryAllMapping.categorySuboption?.name : categoryAllMapping.categorySuboption?.chineseName})</span>
                   </Fragment>
                 ));
               }
@@ -195,7 +199,7 @@ export default function QuotationHistoriesPage() {
         }))
     ),
     {
-      title: "总价（美元）",
+      title: t("list.columns.totalPriceUSD"),
       dataIndex: "totalPriceInUSD",
       key: "totalPriceInUSD",
       fixed: "left",
@@ -203,12 +207,12 @@ export default function QuotationHistoriesPage() {
       render: (value: string, record: QuotationHistory) => (
         <>
           <p>{ new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(value)) }</p>
-          <p className={pageStyles.hintStyle}>汇率：$1 = {new Intl.NumberFormat("zh-CN", { style: "currency", currency: "CNY" }).format(record.exchangeRateUSDToCNY)}</p>
+          <p className={pageStyles.hintStyle}>{t("list.columns.exchangeRatelabel")}$1 = {new Intl.NumberFormat("zh-CN", { style: "currency", currency: "CNY" }).format(record.exchangeRateUSDToCNY)}</p>
         </>
       )
     },
     {
-      title: "总价（元）",
+      title: t("list.columns.totalPriceCNY"),
       dataIndex: "totalPriceInCNY",
       key: "totalPriceInCNY",
       fixed: "left",
@@ -216,7 +220,7 @@ export default function QuotationHistoriesPage() {
       render: (value: string) => new Intl.NumberFormat("zh-CN", { style: "currency", currency: "CNY" }).format(Number(value))
     },
     {
-      title: "总成本（元）",
+      title: t("list.columns.totalCostCNY"),
       dataIndex: "totalCostInCNY",
       key: "totalCostInCNY",
       fixed: "left",
@@ -224,35 +228,35 @@ export default function QuotationHistoriesPage() {
       render: (value: string) => new Intl.NumberFormat("zh-CN", { style: "currency", currency: "CNY" }).format(Number(value))
     },
     {
-      title: "匹配模数",
+      title: t("list.columns.matchingModulus"),
       dataIndex: "offsetPrinting",
       key: "offsetPrinting.numOfMatchedModulus",
       align: "right",
       render: (offsetPrinting?: OffsetPrintingQuotationHistory) => offsetPrinting?.numOfMatchedModulus || "-"
     },
     {
-      title: "匹配周长",
+      title: t("list.columns.matchedPerimeter"),
       dataIndex: "offsetPrinting",
       key: "offsetPrinting.matchedPerimeter",
       align: "right",
       render: (offsetPrinting?: OffsetPrintingQuotationHistory) => offsetPrinting?.matchedPerimeter || "-"
     },
     {
-      title: "倍数",
+      title: t("list.columns.multiple"),
       dataIndex: "offsetPrinting",
       key: "offsetPrinting.multiple",
       align: "right",
       render: (offsetPrinting?: OffsetPrintingQuotationHistory) => offsetPrinting?.multiple || "-"
     },
     {
-      title: "印刷用SKU数",
+      title: t("list.columns.numOfSKUs4Printing"),
       dataIndex: "offsetPrinting",
       key: "offsetPrinting.numOfSKUs4Printing",
       align: "right",
       render: (offsetPrinting?: OffsetPrintingQuotationHistory) => offsetPrinting?.numOfSKUs4Printing ? new Intl.NumberFormat().format(Number(offsetPrinting.numOfSKUs4Printing)) : "-"
     },
     {
-      title: "印刷宽度（mm）",
+      title: t("list.columns.printingWidth"),
       key: "printingWidth",
       align: "right",
       render: (_, record: QuotationHistory) => {
@@ -266,7 +270,7 @@ export default function QuotationHistoriesPage() {
       }
     },
     {
-      title: "材料宽度（mm）",
+      title: t("list.columns.materialWidth"),
       key: "materialWidth",
       align: "right",
       render: (_, record: QuotationHistory) => {
@@ -280,21 +284,21 @@ export default function QuotationHistoriesPage() {
       }
     },
     {
-      title: "横向印刷数",
+      title: t("list.columns.horizontalLayoutCount"),
       dataIndex: "digitalPrinting",
       key: "digitalPrinting.horizontalLayoutCount",
       align: "right",
       render: (digitalPrinting?: DigitalPrintingQuotationHistory) => digitalPrinting?.horizontalLayoutCount || "-"
     },
     {
-      title: "每印袋数",
+      title: t("list.columns.numOfBagsPerPrinting"),
       dataIndex: "digitalPrinting",
       key: "digitalPrinting.numOfBagsPerPrinting",
       align: "right",
       render: (digitalPrinting?: DigitalPrintingQuotationHistory) => digitalPrinting?.numOfBagsPerPrinting || "-"
     },
     {
-      title: "印刷长度（m）",
+      title: t("list.columns.printingLength"),
       key: "printingLength",
       align: "right",
       render: (_, record: QuotationHistory) => {
@@ -308,104 +312,104 @@ export default function QuotationHistoriesPage() {
       }
     },
     {
-      title: "版长（mm）",
+      title: t("list.columns.plateLength"),
       dataIndex: "gravurePrinting",
       key: "gravurePrinting.plateLength",
       align: "right",
       render: (gravurePrinting: GravurePrintingQuotationHistory) => gravurePrinting?.plateLength || "-"
     },
     {
-      title: "单袋印刷长（mm）",
+      title: t("list.columns.printingLengthPerPackage"),
       dataIndex: "gravurePrinting",
       key: "gravurePrinting.printingLengthPerPackage",
       align: "right",
       render: (gravurePrinting: GravurePrintingQuotationHistory) => gravurePrinting?.printingLengthPerPackage || "-"
     },
     {
-      title: "版周（mm）",
+      title: t("list.columns.platePerimeter"),
       dataIndex: "gravurePrinting",
       key: "gravurePrinting.platePerimeter",
       align: "right",
       render: (gravurePrinting: GravurePrintingQuotationHistory) => gravurePrinting?.platePerimeter || "-"
     },
     {
-      title: "材料面积（㎡）",
+      title: t("list.columns.materialArea"),
       dataIndex: "materialArea",
       key: "materialArea",
       align: "right",
       render: (value: string) => value || "-"
     },
     {
-      title: "印数",
+      title: t("list.columns.printingQuantity"),
       dataIndex: "digitalPrinting",
       key: "digitalPrinting.printingQuantity",
       align: "right",
       render: (digitalPrinting?: DigitalPrintingQuotationHistory) => digitalPrinting?.printingQuantity || "-"
     },
     {
-      title: "印刷费（元）",
+      title: t("list.columns.printingCost"),
       dataIndex: "printingCost",
       key: "printingCost",
       align: "right",
       render: (value: string) => value || "-"
     },
     {
-      title: "材料费（元）",
+      title: t("list.columns.materialCost"),
       dataIndex: "materialCost",
       key: "materialCost",
       align: "right",
       render: (value: string) => value || "-"
     },
     {
-      title: "复合费（元）",
+      title: t("list.columns.laminationCost"),
       dataIndex: "laminationCost",
       key: "laminationCost",
       align: "right",
       render: (value: string) => value || "-"
     },
     {
-      title: "制袋费（元）",
+      title: t("list.columns.bagMakingCost"),
       dataIndex: "bagMakingCost",
       key: "bagMakingCost",
       align: "right",
       render: (value: string) => new Intl.NumberFormat().format(Number(value))
     },
     {
-      title: "刀模费（元）",
+      title: t("list.columns.dieCuttingCost"),
       dataIndex: "dieCuttingCost",
       key: "dieCuttingCost",
       align: "right",
       render: (value: string) => new Intl.NumberFormat().format(Number(value))
     },
     {
-      title: "版费（元）",
+      title: t("list.columns.plateFee"),
       dataIndex: "gravurePrinting",
       key: "gravurePrinting.plateFee",
       align: "right",
       render: (gravurePrinting: GravurePrintingQuotationHistory) => gravurePrinting?.plateFee ? new Intl.NumberFormat().format(Number(gravurePrinting.plateFee)) : "-"
     },
     {
-      title: "包装费（元）",
+      title: t("list.columns.packagingCost"),
       dataIndex: "packagingCost",
       key: "packagingCost",
       align: "right",
       render: (value: string) => new Intl.NumberFormat().format(Number(value))
     },
     {
-      title: "人工费（元）",
+      title: t("list.columns.laborCost"),
       dataIndex: "laborCost",
       key: "laborCost",
       align: "right",
       render: (value: string) => new Intl.NumberFormat().format(Number(value))
     },
     {
-      title: "文件处理费（元）",
+      title: t("list.columns.fileProcessingFee"),
       dataIndex: "fileProcessingFee",
       key: "fileProcessingFee",
       align: "right",
       render: (value: string) => new Intl.NumberFormat().format(Number(value))
     }
-  ], [categoryOptions, maxMaterialDisplayByCategoryOptions]);
+  ], [isZhCN, categoryOptions, maxMaterialDisplayByCategoryOptions]);
 
   useEffect(() => {
     dispatch(fetchCategoryOptions());

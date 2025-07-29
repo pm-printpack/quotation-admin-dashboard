@@ -6,11 +6,15 @@ import { useCallback, useEffect, useMemo } from "react";
 import Text from "antd/es/typography/Text";
 import { Material, MaterialDisplay, fetchMaterials, updateMaterialDisplay } from "@/lib/features/materials.slice";
 import { ColumnsType } from "antd/es/table";
+import { useTranslations } from "next-intl";
+import { getBrowserLocale } from "@/lib/i18n";
 
 export default function MaterialDisplayControllerPage() {
   const dispatch = useAppDispatch();
+  const t = useTranslations("materials");
   const materials: Material[] = useAppSelector((state: RootState) => state.materials.list);
   const loading: boolean = useAppSelector((state: RootState) => state.materials.loading);
+  const isZhCN: boolean = useMemo(() => getBrowserLocale() === "zh-CN", []);
 
   useEffect(() => {
     dispatch(fetchMaterials()).unwrap();
@@ -31,14 +35,14 @@ export default function MaterialDisplayControllerPage() {
   const columns: ColumnsType<Material> = useMemo(() => {
     const columnSegments: ColumnsType<Material> = [
       {
-        title: "材料名",
+        title: t("displayList.columns.chineseName"),
         dataIndex: "chineseName",
         key: "chineseName",
         width: "8%",
         render: (text: string) => <Text>{text}</Text>
       },
       {
-        title: "英文名",
+        title: t("displayList.columns.name"),
         dataIndex: "name",
         key: "name",
         width: "8%",
@@ -54,7 +58,7 @@ export default function MaterialDisplayControllerPage() {
       const materialDisplay: MaterialDisplay = materialDisplays[i];
       if (materialDisplay.categoryPrintingType && materialDisplay.categoryOption) {
         columnSegments.push({
-          title: <span>{materialDisplay.categoryPrintingType.chineseName}<br/>{materialDisplay.categoryOption.chineseName}{materialDisplay.index === 0 ? "" : (materialDisplay.index + 1)}</span>,
+          title: <span>{isZhCN ? materialDisplay.categoryPrintingType.chineseName : materialDisplay.categoryPrintingType.name}<br/>{isZhCN ? materialDisplay.categoryOption.chineseName : materialDisplay.categoryOption.name}{materialDisplay.index === 0 ? "" : (materialDisplay.index + 1)}</span>,
           key: `material-display-${materialDisplay.id}`,
           align: "center",
           width: `${widthRatio}%`,
@@ -63,13 +67,14 @@ export default function MaterialDisplayControllerPage() {
       }
     }
     return columnSegments;
-  }, [onChange, materials]);
+  }, [isZhCN, onChange, materials]);
 
   return (
     <Table<Material>
       columns={columns}
       dataSource={materials}
       loading={loading}
+      rowKey={(record: Material) => record.id}
     />
   );
 }

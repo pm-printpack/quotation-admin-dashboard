@@ -1,0 +1,21 @@
+{
+  "title": "Administrators",
+  "columns": {
+    "username": "Username",
+    "name": "Name",
+    "operation": "Operation"
+  },
+  "rules": {
+    "username": "Username is required!",
+    "name": "Name is required!"
+  },
+  "modificationTooltip": "Modify administrator({name}) information",
+  "removeTooltip": "Remove administrator({name})",
+  "removeConfirming": {
+    "title": "Remove administrator({name})",
+    "description": "Confirm deletion of administrator({name})?",
+    "ok": "Confirm",
+    "cancel": "Cancel"
+  },
+  "new": "Create new administrator"
+}

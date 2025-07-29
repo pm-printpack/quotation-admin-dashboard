@@ -9,8 +9,10 @@ import { DeleteOutlined, EditOutlined, UserAddOutlined } from "@ant-design/icons
 import DoubleCheckedButton from "@/components/DoubleCheckedButton";
 import EditableTable from "@/components/table/EditableTable";
 import { ColumnsType } from "antd/es/table";
+import { useTranslations } from "next-intl";
 
 export default function AdminsPage() {
+  const t = useTranslations("admins");
   const dispatch = useAppDispatch();
   const admins: Admin[] = useAppSelector((state: RootState) => state.admins.list);
   const loading: boolean = useAppSelector((state: RootState) => state.admins.loading);
@@ -59,7 +61,7 @@ export default function AdminsPage() {
 
   const columns: ColumnsType<Admin> = useMemo(() => [
     {
-      title: "管理员账号",
+      title: t("columns.username"),
       dataIndex: "username",
       key: "username",
       width: "50%",
@@ -68,13 +70,13 @@ export default function AdminsPage() {
       rules: [
         {
           required: true,
-          message: "请输入管理员账号!"
+          message: t("rules.username")
         }
       ],
       render: (username: string) => <Text>{username}</Text>
     },
     {
-      title: "管理员姓名",
+      title: t("columns.name"),
       dataIndex: "name",
       key: "name",
       editable: true,
@@ -82,13 +84,13 @@ export default function AdminsPage() {
       rules: [
         {
           required: true,
-          message: "请输入管理员姓名!"
+          message: t("rules.name")
         }
       ],
       render: (name: string) => <Text>{name}</Text>
     },
     {
-      title: "操作",
+      title: t("columns.operation"),
       width: "25%",
       type: "operation",
       render: (_, record: Admin) => (
@@ -98,7 +100,7 @@ export default function AdminsPage() {
             ?
             <Button type="text" shape="circle" size="middle" disabled={true} icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
             :
-            <Tooltip title={`修改管理员（${record.name}）的信息`}>
+            <Tooltip title={t("modificationTooltip", {name: record.name})}>
               <Button type="text" shape="circle" size="middle" icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
             </Tooltip>
           }
@@ -117,15 +119,15 @@ export default function AdminsPage() {
               undefined
               :
               {
-                title: `删除管理员（${record.name}）`
+                title: t("removeTooltip", {name: record.name})
               }
             }
             popconfirmProps={{
-              title: `删除（${record.name}）`,
-              description: `你确定想删除管理员（${record.name}）吗？`,
+              title: t("removeConfirming.title", {name: record.name}),
+              description: t("removeConfirming.description", {name: record.name}),
               onConfirm: onDelete(record.id),
-              okText: "确定",
-              cancelText: "再想想",
+              okText: t("removeConfirming.ok"),
+              cancelText: t("removeConfirming.cancel"),
               disabled: !!editingId
             }}
           />
@@ -137,7 +139,7 @@ export default function AdminsPage() {
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>
       <Flex vertical={false} justify="flex-end">
-        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>添加新管理员</Button>
+        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>{t("new")}</Button>
       </Flex>
       <EditableTable<Admin, NewAdmin, Admin>
         editingId={editingId}

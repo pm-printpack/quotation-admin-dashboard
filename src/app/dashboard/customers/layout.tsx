@@ -6,8 +6,10 @@ import { PropsWithChildren, useCallback, useMemo } from "react";
 import styles from "./layout.module.css";
 import { usePathname, useRouter } from "next/navigation";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { useTranslations } from "next-intl";
 
 export default function CustomersLayout({children}: PropsWithChildren) {
+  const t = useTranslations("customers");
   const { token: { colorBgContainer } } = theme.useToken();
   const pathname: string = usePathname();
   const router: AppRouterInstance = useRouter();
@@ -16,12 +18,12 @@ export default function CustomersLayout({children}: PropsWithChildren) {
   const items: TabsProps["items"] = [
     {
       key: "/list/",
-      label: "客户列表",
+      label: t("tabs.listLabel"),
       children: children
     },
     {
       key: "/tiers/",
-      label: "客户等级",
+      label: t("tabs.tiersLabel"),
       children: children
     }
   ];
@@ -33,7 +35,7 @@ export default function CustomersLayout({children}: PropsWithChildren) {
   return (
     <Layout className={styles.layoutContainer}>
       <Header style={{ backgroundColor: colorBgContainer }} className={styles.layoutHeader}>
-        <Title level={2}>Customers</Title>
+        <Title level={2}>{t("title")}</Title>
       </Header>
       <Content style={{ backgroundColor: colorBgContainer }}>
         <Tabs defaultActiveKey={defaultActiveKey} items={items} onChange={onChange} />

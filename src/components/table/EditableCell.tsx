@@ -6,6 +6,7 @@ import Password from "antd/es/input/Password";
 import TextArea from "antd/es/input/TextArea";
 import type { ColumnGroupType, ColumnsType, ColumnType } from "antd/es/table";
 import { ColumnTitle } from "antd/es/table/interface";
+import { useTranslations } from "next-intl";
 import { ReactNode, useCallback, useEffect, useMemo, useState, type PropsWithChildren } from "react";
 
 type ColumnCategory = "operation" | EditableCellInputType;
@@ -55,6 +56,7 @@ export default function EditableCell<RecordType extends AnyObject>({
   children,
   ...restProps
 }: PropsWithChildren<EditableCellProps<RecordType>>) {
+  const t = useTranslations("components/EditableCell");
   const inputNode: ReactNode = useMemo(() => {
     if (!editing) {
       return undefined;
@@ -91,7 +93,7 @@ export default function EditableCell<RecordType extends AnyObject>({
               name={dataIndex}
               rules={rules}
             >
-              <Input placeholder="新账号" />
+              <Input placeholder={t("register.newUsername")} />
             </FormItem>
             <FormItem
               name="password"
@@ -99,11 +101,11 @@ export default function EditableCell<RecordType extends AnyObject>({
               rules={[
                 {
                   required: true,
-                  message: "请输入密码!"
+                  message: t("register.rulesPassword")
                 }
               ]}
             >
-              <Password placeholder="新密码" />
+              <Password placeholder={t("register.newPassword")} />
             </FormItem>
           </>
           :

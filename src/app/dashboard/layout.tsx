@@ -12,6 +12,7 @@ import { Content, Footer } from "antd/es/layout/layout";
 import { SelectInfo } from "rc-menu/lib/interface";
 import { usePathname, useRouter } from "next/navigation";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { useTranslations } from "next-intl";
 
 export default function DashboardLayout({children}: PropsWithChildren) {
   const isAuthenticated: boolean = useAppSelector((state: RootState) => state.auth.isAuthenticated);
@@ -19,6 +20,11 @@ export default function DashboardLayout({children}: PropsWithChildren) {
   const { token: { colorBgContainer } } = theme.useToken();
   const router: AppRouterInstance = useRouter();
   const pathname: string = usePathname();
+  const tMaterials = useTranslations("materials");
+  const tQuotationHistories = useTranslations("quotation-histories");
+  const tCustomers = useTranslations("customers");
+  const tAdmins = useTranslations("admins");
+  const tSettings = useTranslations("settings");
 
   const onSiderCollapse = useCallback((value: boolean) => {
     setCollapsed(value);
@@ -35,11 +41,11 @@ export default function DashboardLayout({children}: PropsWithChildren) {
 
   const menuItems: ItemType<MenuItemType>[] = useMemo(() => [
     getItem("Home", "/", <BarChartOutlined />),
-    getItem("材料管理", "/materials/", <BuildOutlined />),
-    getItem("估价记录", "/quotation-histories/", <HistoryOutlined />),
-    getItem("客户管理", "/customers/", <UserOutlined />),
-    getItem("系统管理员", "/admins/", <AuditOutlined />),
-    getItem("系统设置", "/settings/", <SettingOutlined />)
+    getItem(tMaterials("title"), "/materials/", <BuildOutlined />),
+    getItem(tQuotationHistories("title"), "/quotation-histories/", <HistoryOutlined />),
+    getItem(tCustomers("title"), "/customers/", <UserOutlined />),
+    getItem(tAdmins("title"), "/admins/", <AuditOutlined />),
+    getItem(tSettings("title"), "/settings/", <SettingOutlined />)
   ], [getItem]);
 
   const onMenuSelect = useCallback((info: SelectInfo) => {

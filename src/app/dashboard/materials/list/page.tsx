@@ -9,12 +9,16 @@ import DoubleCheckedButton from "@/components/DoubleCheckedButton";
 import { addRecord, Material, deleteAddingRecord, deleteMaterial, fetchMaterials, createMaterial, NewMaterial, updateMaterial, UpdatedMaterial } from "@/lib/features/materials.slice";
 import EditableTable from "@/components/table/EditableTable";
 import { EditableColumnsType } from "@/components/table/EditableCell";
+import { useTranslations } from "next-intl";
+import { getBrowserLocale } from "@/lib/i18n";
 
 export default function MaterialListPage() {
   const dispatch = useAppDispatch();
+  const t = useTranslations("materials");
   const materials: Material[] = useAppSelector((state: RootState) => state.materials.list);
   const loading: boolean = useAppSelector((state: RootState) => state.materials.loading);
   const [editingId, setEditingId] = useState<number>(NaN);
+  const isZhCN: boolean = useMemo(() => getBrowserLocale() === "zh-CN", []);
   
   const onAdd = useCallback(() => {
     dispatch(addRecord());
@@ -59,7 +63,7 @@ export default function MaterialListPage() {
 
   const columns: EditableColumnsType<Material> = useMemo(() => [
     {
-      title: "材料名",
+      title: t("list.columns.chineseName"),
       dataIndex: "chineseName",
       key: "chineseName",
       width: "11%",
@@ -67,13 +71,13 @@ export default function MaterialListPage() {
       rules: [
         {
           required: true,
-          message: "请输入材料名!"
+          message: t("list.rules.chineseName")
         }
       ],
       render: (text: string) => <Text>{text}</Text>
     },
     {
-      title: "英文名",
+      title: t("list.columns.name"),
       dataIndex: "name",
       key: "name",
       width: "9%",
@@ -81,13 +85,13 @@ export default function MaterialListPage() {
       rules: [
         {
           required: true,
-          message: "请输入材料英文名!"
+          message: t("list.rules.name")
         }
       ],
       render: (text: string) => <Text>{text}</Text>
     },
     {
-      title: <span>比重<br/>（g/cm³）</span>,
+      title: <span>{t("list.columns.density")}<br/>({t("list.columns.densityUnit")})</span>,
       dataIndex: "density",
       key: "density",
       width: "11%",
@@ -103,13 +107,13 @@ export default function MaterialListPage() {
       rules: [
         {
           required: true,
-          message: "请输入比重（g/cm³）!"
+          message: t("list.rules.density")
         }
       ],
       render: (text: number) => <Text>{text}</Text>
     },
     {
-      title: <span>厚度<br/>（μm）</span>,
+      title: <span>{t("list.columns.thickness")}<br/>({t("list.columns.thicknessUnit")})</span>,
       dataIndex: "thickness",
       key: "thickness",
       width: "9%",
@@ -125,13 +129,13 @@ export default function MaterialListPage() {
       rules: [
         {
           required: true,
-          message: "请输入厚度（μm）!"
+          message: t("list.rules.thickness")
         }
       ],
       render: (text: number) => <Text>{text}</Text>
     },
     {
-      title: <span>面积重<br/>（g/cm²）</span>,
+      title: <span>{t("list.columns.weightPerCm2")}<br/>({t("list.columns.weightPerCm2Unit")})</span>,
       key: "weightPerCm2",
       dataIndex: "weightPerCm2",
       width: "11%",
@@ -139,7 +143,7 @@ export default function MaterialListPage() {
       render: (text: number) => <Text>{Number(text.toFixed(6))}</Text>
     },
     {
-      title: <span>重量单价<br/>（元/kg）</span>,
+      title: <span>{t("list.columns.unitPricePerKg")}<br/>({t("list.columns.unitPricePerKgUnit")})</span>,
       dataIndex: "unitPricePerKg",
       key: "unitPricePerKg",
       width: "10%",
@@ -155,13 +159,13 @@ export default function MaterialListPage() {
       rules: [
         {
           required: true,
-          message: "请输入重量单价（元/kg）!"
+          message: t("list.rules.unitPricePerKg")
         }
       ],
       render: (text: number) => <Text>{text}</Text>
     },
     {
-      title: <span>面积单价<br/>（元/m²）</span>,
+      title: <span>{t("list.columns.unitPricePerSquareMeter")}<br/>({t("list.columns.unitPricePerSquareMeterUnit")})</span>,
       key: "unitPricePerSquareMeter",
       dataIndex: "unitPricePerSquareMeter",
       width: "11%",
@@ -169,7 +173,7 @@ export default function MaterialListPage() {
       render: (text: number) => <Text>{Number(text.toFixed(4))}</Text>
     },
     {
-      title: "备注",
+      title: t("list.columns.remarks"),
       dataIndex: "remarks",
       key: "remarks",
       width: "15%",
@@ -178,7 +182,7 @@ export default function MaterialListPage() {
       render: (remarks?: string) => <Text>{remarks}</Text>
     },
     {
-      title: "操作",
+      title: t("list.columns.operations"),
       width: "13%",
       type: "operation",
       render: (_, record: Material) => (
@@ -188,7 +192,7 @@ export default function MaterialListPage() {
             ?
             <Button type="text" shape="circle" size="middle" disabled={true} icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
             :
-            <Tooltip title={`修改材料（${record.chineseName}）的信息`}>
+            <Tooltip title={t("list.modificationTooltip", {name: isZhCN ? record.chineseName : record.name})}>
               <Button type="text" shape="circle" size="middle" icon={<EditOutlined />} onClick={onEdit(record.id)}></Button>
             </Tooltip>
           }
@@ -207,27 +211,27 @@ export default function MaterialListPage() {
               undefined
               :
               {
-                title: `删除材料（${record.chineseName}）`
+                title: t("list.removeTooltip", {name: isZhCN ? record.chineseName : record.name})
               }
             }
             popconfirmProps={{
-              title: `删除（${record.chineseName}）`,
-              description: `你确定想删除材料（${record.chineseName}）吗？`,
+              title: t("list.removeConfirming.title", {name: isZhCN ? record.chineseName : record.name}),
+              description: t("list.removeConfirming.description", {name: isZhCN ? record.chineseName : record.name}),
               onConfirm: onDelete(record.id),
-              okText: "确定",
-              cancelText: "再想想",
+              okText: t("list.removeConfirming.ok"),
+              cancelText: t("list.removeConfirming.cancel"),
               disabled: !!editingId
             }}
           />
         </Space>
       ),
     }
-  ], [editingId, onEdit, onDelete]);
+  ], [isZhCN, editingId, onEdit, onDelete]);
 
   return (
     <Space direction="vertical" size="middle" style={{display: "flex"}}>
       <Flex vertical={false} justify="flex-end">
-        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>添加新材料</Button>
+        <Button type="primary" icon={<UserAddOutlined />} onClick={onAdd}>{t("list.new")}</Button>
       </Flex>
       <EditableTable<Material, NewMaterial, UpdatedMaterial>
         editingId={editingId}

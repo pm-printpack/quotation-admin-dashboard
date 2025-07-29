@@ -1,0 +1,47 @@
+{
+  "title": "Material",
+  "tabs": {
+    "listLabel": "Materials",
+    "displayListLabel": "Material display controls"
+  },
+  "list": {
+    "columns": {
+      "chineseName": "Name in Chinese",
+      "name": "Name in English",
+      "density": "Density",
+      "densityUnit": "g/cm³",
+      "thickness": "Thickness",
+      "thicknessUnit": "μm",
+      "weightPerCm2": "Basis weight",
+      "weightPerCm2Unit": "g/cm²",
+      "unitPricePerKg": "Price per kilogram",
+      "unitPricePerKgUnit": "CNY/kg",
+      "unitPricePerSquareMeter": "Price per square meter",
+      "unitPricePerSquareMeterUnit": "CNY/m²",
+      "remarks": "Remarks",
+      "operations": "Operation"
+    },
+    "rules": {
+      "chineseName": "Material name (in Chinese) is required!",
+      "name": "Material name (in English) is required!",
+      "density": "Density (g/cm³) is required!",
+      "thickness": "Thickness(μm) is required!",
+      "unitPricePerKg": "Price per kilogram (CNY/kg) is required!"
+    },
+    "modificationTooltip": "Modify material({name}) information",
+    "removeTooltip": "Remove material({name})",
+    "removeConfirming": {
+      "title": "Remove material({name})",
+      "description": "Confirm deletion of material({name})?",
+      "ok": "Confirm",
+      "cancel": "Cancel"
+    },
+    "new": "Create new material"
+  },
+  "displayList": {
+    "columns": {
+      "chineseName": "Name in Chinese",
+      "name": "Name in English"
+    }
+  }
+}

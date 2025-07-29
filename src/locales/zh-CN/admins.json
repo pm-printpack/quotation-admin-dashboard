@@ -1,0 +1,21 @@
+{
+  "title": "系统管理员",
+  "columns": {
+    "username": "管理员账号",
+    "name": "管理员姓名",
+    "operation": "操作"
+  },
+  "rules": {
+    "username": "请输入管理员账号!",
+    "name": "请输入管理员姓名!"
+  },
+  "modificationTooltip": "修改管理员({name})的信息",
+  "removeTooltip": "删除管理员({name})",
+  "removeConfirming": {
+    "title": "删除({name})",
+    "description": "你确定想删除管理员({name})吗？",
+    "ok": "确定",
+    "cancel": "再想想"
+  },
+  "new": "添加新管理员"
+}

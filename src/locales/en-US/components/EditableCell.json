@@ -1,0 +1,7 @@
+{
+  "register": {
+    "newUsername": "New username",
+    "newPassword": "New password",
+    "rulesPassword": "Password is required!"
+  }
+}

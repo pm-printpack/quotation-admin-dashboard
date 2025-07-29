@@ -7,6 +7,7 @@ import Password from "antd/es/input/Password";
 import { useCallback } from "react";
 import { useAppDispatch } from "@/lib/hooks";
 import { login } from "@/lib/features/auth.slice";
+import { useTranslations } from "next-intl";
 
 type FormValues = {
   username: string;
@@ -14,6 +15,7 @@ type FormValues = {
 };
 
 export default function Login() {
+  const t = useTranslations("login");
   const dispath = useAppDispatch();
 
   const onFinish = useCallback((values: FormValues) => {
@@ -45,14 +47,14 @@ export default function Login() {
           layout="vertical"
           onFinish={onFinish}
         >
-          <FormItem label="Username" name="username" rules={[{ required: true }]}>
+          <FormItem label={t("username")} name="username" rules={[{ required: true }]}>
             <Input />
           </FormItem>
-          <FormItem label="Password" name="password" rules={[{ required: true }]}>
+          <FormItem label={t("password")} name="password" rules={[{ required: true }]}>
             <Password/>
           </FormItem>
           <FormItem>
-            <Button type="primary" htmlType="submit" className={ styles.signInButton }>Sign in</Button>
+            <Button type="primary" htmlType="submit" className={ styles.signInButton }>{t("signin")}</Button>
           </FormItem>
         </Form>
       </Card>

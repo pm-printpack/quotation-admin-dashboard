@@ -1,0 +1,10 @@
+{
+  "title": "Settings",
+  "exchangeRateLabel": "Exchange rate",
+  "shippingtLabel": "Shipping",
+  "weightUnit": "CNY/kg",
+  "shippingTypeUnitPriceLabel": {
+    "ocean": "Ocean freight unit price",
+    "air": "Air freight unit price"
+  }
+}
