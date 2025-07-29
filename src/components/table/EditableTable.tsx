@@ -38,15 +38,20 @@ export default function EditableTable<RecordType extends RecordTypeWithId, NewRe
   const t = useTranslations("components/EditableTable");
 
   const onSubmit = useCallback((preRecord: RecordType, index: number) => {
-    return () => {
-      if (preRecord.id) { // update
-        if (onEditSubmit) {
-          onEditSubmit({ id: preRecord.id, ...form.current?.getFieldsValue() }, preRecord, index);
+    return async () => {
+      try {
+        await form.current?.validateFields();
+        if (preRecord.id) { // update
+          if (onEditSubmit) {
+            onEditSubmit({ id: preRecord.id, ...form.current?.getFieldsValue() }, preRecord, index);
+          }
+        } else { // new
+          if (onNewSubmit) {
+            onNewSubmit(form.current?.getFieldsValue(), index);
+          }
         }
-      } else { // new
-        if (onNewSubmit) {
-          onNewSubmit(form.current?.getFieldsValue(), index);
-        }
+      } catch(error) {
+        console.error(error);
       }
     };
   }, [onEditSubmit]);
