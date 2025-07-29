@@ -104,7 +104,7 @@ export default function CustomerListPage() {
           message: t("list.rules.orgName"),
         }
       ],
-      render: (text: string) => <Text>{text}</Text>
+      render: (text: string) => <Text>{text || "-"}</Text>
     },
     {
       title: t("list.columns.email"),
@@ -118,7 +118,7 @@ export default function CustomerListPage() {
           message: t("list.rules.email")
         }
       ],
-      render: (text: string) => <Text>{text}</Text>
+      render: (text: string) => <Text>{text || "-"}</Text>
     },
     {
       title: t("list.columns.phone"),
@@ -132,7 +132,7 @@ export default function CustomerListPage() {
           message: t("list.rules.phone")
         }
       ],
-      render: (text: string) => <Text>{text}</Text>
+      render: (text: string) => <Text>{text || "-"}</Text>
     },
     {
       title: t("list.columns.tier"),
