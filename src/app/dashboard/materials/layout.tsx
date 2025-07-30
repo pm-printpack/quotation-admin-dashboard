@@ -12,10 +12,10 @@ export default function MaterialsLayout({children}: PropsWithChildren) {
   const { token: { colorBgContainer } } = theme.useToken();
   const pathname: string = usePathname();
   const router: AppRouterInstance = useRouter();
-  const defaultActiveKey: string = useMemo(() => `/${(pathname.match(/^\/dashboard\/materials\/([a-zA-Z0-9\-_]*\/?)/) || [])[1] || "list"}`, [pathname]);
+  const defaultActiveKey: string = useMemo(() => `/${(pathname.match(/^\/dashboard\/materials\/([a-zA-Z0-9\-_]*\/?)/) || [])[1] || "list/"}`, [pathname]);
   const t = useTranslations("materials");
 
-  const items: TabsProps["items"] = [
+  const items: TabsProps["items"] = useMemo(() => [
     {
       key: "/list/",
       label: t("tabs.listLabel"),
@@ -26,7 +26,12 @@ export default function MaterialsLayout({children}: PropsWithChildren) {
       label: t("tabs.displayListLabel"),
       children: children
     }
-  ];
+  ].map((item) => {
+    if (defaultActiveKey !== item.key) {
+      item.children = null;
+    }
+    return item;
+  }), [defaultActiveKey]);
 
   const onChange = useCallback((activeKey: string) => {
     router.push(`/dashboard/materials${activeKey}`);

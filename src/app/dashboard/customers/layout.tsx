@@ -13,9 +13,9 @@ export default function CustomersLayout({children}: PropsWithChildren) {
   const { token: { colorBgContainer } } = theme.useToken();
   const pathname: string = usePathname();
   const router: AppRouterInstance = useRouter();
-  const defaultActiveKey: string = useMemo(() => `/${(pathname.match(/^\/dashboard\/customers\/([a-zA-Z0-9\-_]*\/?)/) || [])[1] || "list"}`, [pathname]);
+  const defaultActiveKey: string = useMemo(() => `/${(pathname.match(/^\/dashboard\/customers\/([a-zA-Z0-9\-_]*\/?)/) || [])[1] || "list/"}`, [pathname]);
 
-  const items: TabsProps["items"] = [
+  const items: TabsProps["items"] = useMemo(() => [
     {
       key: "/list/",
       label: t("tabs.listLabel"),
@@ -26,7 +26,12 @@ export default function CustomersLayout({children}: PropsWithChildren) {
       label: t("tabs.tiersLabel"),
       children: children
     }
-  ];
+  ].map((item) => {
+    if (defaultActiveKey !== item.key) {
+      item.children = null;
+    }
+    return item;
+  }), [defaultActiveKey]);
 
   const onChange = useCallback((activeKey: string) => {
     router.push(`/dashboard/customers${activeKey}`);
