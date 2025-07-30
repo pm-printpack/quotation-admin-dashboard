@@ -51,6 +51,10 @@ async function request<RequestDataType = any, ResponseDataType = Record<string, 
     let newError: Error;
     if (isAxiosError(error)) {
       if (error.response) {
+        if (error.response.status === 401) { // Unauthorized
+          location.replace("/login");
+          return {};
+        }
         newError = new Error(error.response.data.message || "Service error");
       } else if (error.request) {
         newError = new Error(error.request);
