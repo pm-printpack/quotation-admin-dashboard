@@ -41,6 +41,7 @@ export default function MaterialDisplayControllerPage() {
         dataIndex: "chineseName",
         key: "chineseName",
         width: "8%",
+        fixed: "left",
         render: (text: string) => <Text>{text}</Text>
       },
       {
@@ -48,6 +49,7 @@ export default function MaterialDisplayControllerPage() {
         dataIndex: "name",
         key: "name",
         width: "8%",
+        fixed: "left",
         render: (text: string) => <Text>{text}</Text>
       }
     ];
@@ -79,6 +81,7 @@ export default function MaterialDisplayControllerPage() {
     <Table<Material>
       columns={columns}
       dataSource={materials}
+      scroll={{ x: "max-content" }}
       loading={loading}
       rowKey={(record: Material) => record.id}
       pagination={{
